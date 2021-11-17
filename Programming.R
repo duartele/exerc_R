@@ -1,4 +1,9 @@
 #Creating a function
+integrand <-function(x){1/((x+1)*sqrt(x))}
+
+integrate(integrand, lower = 0, upper = Inf)
+
+#pow function
 pow<-function(x=9,y=2){
   result <- x^y
   print(paste(x,"raised to the power",y,"is",result))
