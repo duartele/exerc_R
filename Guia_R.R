@@ -222,10 +222,10 @@ main="GRÁFICO" #Coloca título
 sub="Sub-Título" #Fica na parte inferior do grafico
 ?legend(x,y,legend="Sexo")
 
-#2-Tipos de Gráficos
-plot(y) #Plot dos valores de y ordenados
-plot(x,y)#Plot do par (x,y)
-hist(x)#Histograma de freq de x
+#2-Types of plots - Tipos de Gráficos
+plot(y)         #Plot dos valores de y ordenados
+plot(x,y)       #Plot do par (x,y)
+hist(x)         #Histograma de freq de x
 barplot(x,horiz=TRUE)
 dotchart(x)
 pie(x)
@@ -235,7 +235,7 @@ pairs(m2)
 qqnorm(x)
 qqplot(x,y)
 
-#Distribuicoes
+#Distributions - Distribuicoes
 rnorm(n, mean=0, sd=1)              #Normal - Gaussian
 rexp(n, rate=1)                     #Exponencial
 rgamma(n, shape, scale=1)           #Gamma
@@ -257,19 +257,22 @@ rwilcox(nn,m,n)                     #Wilcoxon's statistics
 'All these functions can be used by replacing
 the letter "r" for "d", "p" or "q" to get respectively,
 the probability density (dnorm), cumulative (pbinom)
-and the value od the quantile (qpois())'
+and the value of the quantile (qpois())
+Essas funções podem ser substituídas pelas letras "r"
+"d" ou "q" indicando fdp, acumulada e valor do quantil'
 
-#Summary Statistics
+#Summary Statistics - Sumário Estatístico
 summary(f)
-str(f) #The internal structure
+str(f) #The internal structure - Estrutura interna
 table(f)
 head(f)
 tail(f)
 attach(f)
 detach(f)
 data.frame(v1,v2)#create a data frame from the vectors v1 and v2
+# Cria data frame usando os vetores v1 e v2
 
-#Statistical Tests
+#Statistical Tests - Testes Estatísticos
 cor.test()
 shapiro.test()
 ks.test()
@@ -282,16 +285,16 @@ chisq.test()
 fisher.test()
 wilcox.test()
 pairwise.wilcox.test()
-aov(formula=) #Specialized ANOVA fubction
+aov(formula=) #Specialized ANOVA function - Anova especializada
 oneway.test()
-anova() #compare two or more linear models (LRT)
+anova() #compare two or more linear models (LRT) - comparação de 2 ou mais modelos
 kruskal.test()
 friedman.test()
 mantelhaen.test()
 mcnemar.test()
 prop.trend.test()
 
-#Linear Models
+#Linear Models - Modelos Lineares
 lm()
 glm()
 Anova()           #car
@@ -356,22 +359,20 @@ update(lm1,formula2)
 anova(lm1,lm2)
 predict(lm1,newdata=df2)
 par(mfrow=c(2,2));plot(lm1) # 4 plots: residuals, normal q-q
-#Scale-location and Cooks
+#Scale-location and Cooks - faz 4 gráficos
 
-#packages
+#packages - pacotes
 install.packages("pkgs", lib)
 update.packages()
 library(pkg)
 detach("package:pkg")
 
-#Programming
-function(arglist)
-returnValue()
-if{} else{}
-for(var in seq)
-while
-repeat
-break
-next
-ifelse(test, yes, no)
-do.call(funname,args)
+#Confidence interval - Intervalos de Confiança
+x<-c(6,6.4,7,5.8,6,5.8,5.9,6.7,6.1,6.5,6.3,5.8) #Sample
+t.test(x,conf.level = 0.95) # In this usage, we are creating an interval for one sample
+
+#If you want to do manually
+qt(0.95,190) #t-value t_alpha_sqrt(n)
+li<-mean(x)-qt(0.975,11)*sd(x)/sqrt(12)
+ls<-mean(x)+qt(0.975,11)*sd(x)/sqrt(12)
+#IC = (li;ls)
