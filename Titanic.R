@@ -8,7 +8,10 @@ barplot(table(df$survived,df$sex))
 legend("topleft",legend=c("Morreu","Viveu"))
 ?legend
 library(lattice)
+which(is.na(df$survived))
 
+pie(x=table(pathscat), labels=c("<2cm","2-5 cm",">5 cm")
+    , col = c("lightblue", "lightgreen", "lightgrey"))
 
 
 
@@ -140,3 +143,56 @@ windows()
 tab1<-table(pathscat,status)
 counts<-tab1
 barplot(counts,main="tpitulo")
+
+
+
+
+
+
+
+
+
+
+
+
+# Variáveis Qualitativas Ordinais
+Pclass (1, 2 ou 3)
+Das 1309 observações temos 323 da primeira (24,68%), 277 da segunda (21,16%) e 709 da terceira (54,16%) , sem valores faltantes, portanto. No gráfico a seguir, veremos para cada uma dessas categorias o comportamento da variável resposta.
+Aqui podemos ver que as pessoas da primeira classe tiveram mais chances de sobrevivência, seguindo pela segunda classe, tendo portanto a terceira classe com as maiores taxas de morte.
+
+# Variáveis Quantitativas Discreta
+Sibsp (Número de irmãos e ou esposos)
+Como podemos observar no gráfico, a maioria dos valores assume o valor 0 ou 1. Talvez podemos analisar esta variável agrupando em três categorias (0, 1 e maior que 1) - ou em duas("Não tem" ou "Tem").
+
+#Conclusão
+
+
+De acordo com o exposto, pessoas ricas e do sexo feminino tem mais chances de sobreviverem ao acidente do Titanic.
+
+#Rascunho
+
++ **survived**: Sobrevivência (ou não) dos passageiros. Possíveis valores: 0 (morreu) ou 1 (sobreviveu). Classificação: Variável Resposta (de interesse). Quantidade de sobreviventes na amostra: `r table(df$survived)[2]` pessoas(`r round(table(df$survived)[2]/nrow(df)*100,2)`%);
+
++ **pclass**: Classe do Bilhete. Possíveis valores: 1(primeira), 2(segunda) ou 3 (terceira). Classificação: Variável Qualitativa Ordinal
+Número de obs faltantes: `r  which(is.na(df$pclass));
+`
++ **age**: Idade em anos. Possíveis valores: Para crianças menores de um ano, a idade pode assumir um valor contínuo (no intervalo  ]0,1[). Para mais velhos que isso, usa-se o valores discretos  {1,2,3...}. Quando tem o valor da forma xx.5 é porque a idade da pessoa foi estimada. Não obstante essas informações, podemos classificar a Variável como Quantitativa Contínua.
+Número de obs faltantes: `r  which(is.na(df$age));
+
++ **sibsp**: Número de irmãos e/ou esposos a bordo. Possíveis valores: {0,1,2,3...}. Classificação: Variável Quantitativa Discreta.
+Número de obs faltantes: `r  which(is.na(df$sibsp));
+
++ **parch**: Número de pais e/ou filhos a bordo. Possíveis valores: {0,1,2,3...}. Classificação: Variável Quantitativa Discreta.
+Número de obs faltantes: `r  which(is.na(df$parch));
+
++ **fare**: Valor da tarifa paga. Possíveis valores: ]0,+???[ Classificação: Variável Quantitativa Contínua.
+                                                            Número de obs faltantes: `r  which(is.na(df$fare));
+                                                            
+                                                            + **embarked**: Porto de Embarque. Possíveis valores: C (Cherbourg), Q (Queenstown) ou S (Southampton). Classificação: Variável Qualitativa Nominal.
+                                                            Número de obs faltantes: `r  which(is.na(df$embarked));
+                                                            
+                                                            + **death**: Morte (ou não) do passageiro. Possíveis valores: 0 (não morreu) ou 1(morreu). Esta variável será descartada porque foi obtida pela variável **survived**.
+                                                            
+                                                            
+                                                            Vale dizer, seria mais interessante se a variável sibsp fosse dividida em duas (uma só para irmãos e outra só para esposas). Nesse sentido, parch também poderia estar separada.
+                                                            
