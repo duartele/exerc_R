@@ -8,76 +8,92 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+```{r, echo=FALSE, eval=TRUE}
+# Use getwd() para ver se está no diretorio correto
+df<-read.csv2("titanic.csv",colClasses = c("factor", "factor","factor","numeric","integer","integer","numeric", "factor","factor")) #Como importei a base
 
+#attach(df) #Como só usaremos esse data frame, é seguro usar o attach
+```
 ## Estudo sobre a base Titanic
 
-### Introdução
+1. Introdução
 
-O objetivo deste estudo é aplicar os conhecimentos aprendidos em Estatística Computacional com o professor Luís Machado (MECD) em uma base real, apresentando os passos e comandos utilizados nos softwares R e SPSS e, além disso, procedermos a Análise Descritiva dos Dados.
+O objetivo primordial deste estudo é aplicar os conhecimentos aprendidos em Estatística Computacional com o professor Luís Machado (MECD), apresentando os passos e comandos utilizados nos softwares R e SPSS.
 
-A base escolhida foi a do Titanic porque se trata de um acidente histórico de um navio luxuoso construído para ser 'inafundável' (segundo o imaginário popular, foi justamente a arrogância humana um fator crucial para esse terrível acidente).
+A base de dados escolhida é a Titanic porque se trata de um acidente histórico que até hoje está no imaginário popular e também por ser bastante usada nos estudos iniciais de Machine Learning.
 
-Além disso, referida base é interessante para o propósito do trabalho porque apresenta poucas variáveis, o que facilitará a classificação e análise de todas elas, e ainda assim apresenta os tipos comuns de variáveis (qualitativa - nominal e ordinal - e quantitativa - discreta e contínua).
+Vale dizer, sua utilização em estudos se deve ao fato dessa base possuir poucas variáveis, mas em quantidade suficiente para aplicar diversas técnicas estatísticas.
 
-A quantidade de observações também é interessante (1309 registros), pois não é um número pequeno e nem abrange todas as 3.327 pessoas que embarcaram no Titanic, caracterizando-se, assim, como uma amostra.
- 892 tripulantes e 2.435 passageiros (de acordo com o site Wikipédia). Por termos, então, apenas uma amostra da população podemos enriquecer o trabalho apresentando uma modelagem estatística para prever se uma pessoa possa ter sobrevivido (ou não) ao acidente.
+2. Primeiras Análises
 
-# , para efeitos deste estudo, vamos supor que trata-se de uma amostra aleatória simples e que a falta de informação das outras pessoas não influencie na chance de sobreviver (ou não) ao acidente.
+O **RMS Titanic** foi um navio luxuoso construído para ser 'inafundável'. Partiu dia 10 de abril de 1912 com 2224 pessoas (passageiros e tripulantes) e o acidente ocorreu dia 15 de abril daquele ano, acarretando em mais de 1500 mortes [(ver Wikipédia)](https://en.wikipedia.org/wiki/Titanic).
 
-E por se tratar de uma amostra, além de proceder à Análise Descritiva, podemos construir modelos estatísticos para tentar prever a chance de uma pessoa ter sobrevivido ao acidente, baseando-nos nas características que influenciaram na sobrevivência (ou não) das pessoas à viagem.#
+A base analisada tem `r nrow(df)` observações e `r nrow(df)` variáveis, as quais serão apresentadas a seguir.
 
-# Primeiras Análises
+    2.1 Dicionário de variáveis
 
-# Dicionário de variáveis
++ **survived**: Sobrevivência (ou não) dos passageiros. Possíveis valores: 0 (morreu) ou 1 (sobreviveu);
 
-O primeiro passo é conhecermos a base. Inicialmente temos 891 observações e 12 seguintes variáveis:
-pclass: Classe do Bilhete. Possíveis valores: 1(primeira), 2(segunda) ou 3 (terceira). Classificação: Variável Qualitativa Ordinal
-survived: Sobrevivência (ou não) do passageiro. Possíveis valores: 0 (morreu) ou 1(sobreviveu). Classificação: Variável Resposta (de interesse). Quantidade de sobreviventes na amostra: 500 pessoas(38,20%).
-sex: Gênero do passageiro. Possíveis valores: female (feminino) ou male(masculino). Classificação: Variável Qualitativa Nominal
-age: Idade em anos. Possíveis valores: Para crianças menores de um ano, a idade pode assumir um valor contínuo (no intervalo  ]0,1[). Para mais velhos que isso, usa-se o valores discretos  {1,2,3...}. Quando tem o valor da forma xx.5 é porque a idade da pessoa foi estimada. Não obstante essas informações, podemos classificar a Variável como Quantitativa Contínua.
-sibsp: Número de irmãos e/ou esposos a bordo. Possíveis valores: {0,1,2,3...}. Classificação: Variável Quantitativa Discreta
-parch: Número de pais e/ou filhos a bordo. Possíveis valores: {0,1,2,3...}. Classificação: Variável Quantitativa Discreta
-fare: Valor da tarifa paga. Possíveis valores: ]0,+∞[ Classificação: Variável Quantitativa Contínua
-embarked: Porto de Embarque. Possíveis valores: C (Cherbourg), Q (Queenstown) ou S (Southampton). Classificação: Variável Qualitativa Nominal.
-death: Morte (ou não) do passageiro. Possíveis valores: 0 (não morreu) ou 1(morreu). Esta variável será descartada porque é basicamente oposta à variável survived.
-Cabe ressaltar, seria mais interessante se a variável sibsp fosse dividida em duas (uma só para irmãos e outra só para esposas). Com efeito, com essas duas informações separadas, poderíamos facilmente construir a variável sibsp caso desejássemos. Mesmo raciocício se aplica para a variável parch.
-Por fim, podemos pensar em construir outras variáveis. Por exemplo, construir uma marcação(flag) para a idade (real ou estimada); podemos também agrupar valores contínuos (ou até discretos) em classes. Estas (e outras) transformações serão apresentadas no decorrer deste trabalho.   
++ **pclass**: Classe do Bilhete. Possíveis valores: 1(primeira), 2(segunda) ou 3 (terceira);
+`
++ **sex**: Gênero do passageiro. Possíveis valores: female (feminino) ou male(masculino);
 
-# Variáveis Qualitativas
-## Variáveis Qualitativas Nominais
-Sex (female ou male)
-Das 1309 observações temos 466 mulheres (35,60%) e 843 homens (64,40%), sem valores faltantes, portanto. No gráfico a seguir, veremos para cada uma dessas categorias o comportamento da variável resposta.
-Pela apreciação do gráfico, percebe-se que as mulheres tiveram mais chances de sobrevivência que os homens.
-# Variáveis Qualitativas Ordinais
-Pclass (1, 2 ou 3)
-Das 1309 observações temos 323 da primeira (24,68%), 277 da segunda (21,16%) e 709 da terceira (54,16%) , sem valores faltantes, portanto. No gráfico a seguir, veremos para cada uma dessas categorias o comportamento da variável resposta.
-Aqui podemos ver que as pessoas da primeira classe tiveram mais chances de sobrevivência, seguindo pela segunda classe, tendo portanto a terceira classe com as maiores taxas de morte.
-# Variáveis Quantitativas Discreta
-Sibsp (Número de irmãos e ou esposos)
-Como podemos observar no gráfico, a maioria dos valores assume o valor 0 ou 1. Talvez podemos analisar esta variável agrupando em três categorias (0, 1 e maior que 1) - ou em duas(“Não tem” ou “Tem”).
++ **age**: Idade em anos. Possíveis valores: Para crianças menores de um ano, a idade pode assumir um valor contínuo (no intervalo  ]0,1[). Para mais velhos que isso, usa-se o valores discretos  {1,2,3...}. Quando tem o valor da forma xx.5 é porque a idade da pessoa foi estimada.
 
-#Conclusão
++ **sibsp**: Número de irmãos e/ou esposos a bordo. Possíveis valores: {0,1,2,3...};
 
++ **parch**: Número de pais e/ou filhos a bordo. Possíveis valores: {0,1,2,3...};
 
-De acordo com o exposto, pessoas ricas e do sexo feminino tem mais chances de sobreviverem ao acidente do Titanic.
++ **fare**: Valor da tarifa paga. Possíveis valores: ]0,+∞[;
 
++ **embarked**: Porto de Embarque. Possíveis valores: C (Cherbourg), Q (Queenstown) ou S (Southampton);
 
++ **death**: Morte (ou não) do passageiro. Possíveis valores: 0 (não morreu) ou 1(morreu). Esta variável será descartada porque foi obtida pela variável **survived**.
 
+Observe o tipo das variáveis e depois os primeiros registros em forma tabular:
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on uIntroduçãosing R Markdown see <http://rmarkdown.rstudio.com>.
+```{r, echo=TRUE, eval=TRUE}
+str(df)
+head(df)
+```
+Agora, passemos a analisar cada variável individualmente e com a variável resposta. Para facilitar a apresentação, separaremos as variáveis qualitativas e quantitativas.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+    2.2 Variáveis Qualitativas
+    2.2.1 Variáveis Qualitativas Nominais
+    
+**Sex** (female ou male)
 
-```{r cars}
-summary(cars)
+```{r, echo=TRUE}
+pie(x=table(df$sex), labels=c("Female","Male"), col = c("lightblue", "lightgreen"))
 ```
 
-## Including Plots
+Das `r  nrow(df)` observações, temos `r table(df$sex)[1]` mulheres (`r round(table(df$sex)[1]/nrow(df)*100,2)`%) e
+`r table(df$sex)[2]` homens (`r round(table(df$sex)[2]/nrow(df)*100,2)`%), sem
+valores faltantes, portanto.
+No gráfico a seguir, veremos para cada uma dessas categorias o comportamento da variável resposta.
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r, echo=TRUE}
+barplot(table(df$survived,df$sex),legend.text = TRUE)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Pela apreciação do gráfico, percebe-se que as mulheres tiveram mais chances de sobrevivência que os homens, indicando assim que a variável sexo pode ajudar a explicar a sobrevivência de um passageiro.
+
+2.2.2 Variáveis Qualitativas Ordinais
+**Pclass** (1, 2 ou 3)
+
+```{r, echo=TRUE}
+barplot(table(df$survived,df$pclass),legend.text = TRUE)
+```
+
+Observando o gráfico acima, percebemos que a 3ra classe é a mais frequente. Além disso, temos a sugestão de que quanto pior é a classe menor é a chance de sobreviência de um passageiro.
+
+2.3 Variáveis Quantitativas Discretas
+**Sibsp** (Número de irmãos e ou esposos)
+
+```{r, echo=TRUE}
+hist(df$sibsp)
+```
+
+A maioria dos passageiros possuía embarcou sozinho ou com um(a) espos(a)(ou irmã(o)). Talvez podemos categorizar essa variável em "possui" ou "não possui" irmãos ou esposos.
