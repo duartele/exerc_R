@@ -12,7 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 # Use getwd() para ver se está no diretorio correto
 df<-read.csv2("titanic.csv",colClasses = c("factor", "factor","factor","numeric","integer","integer","numeric", "factor","factor")) #Como importei a base
 
-#attach(df) #Como só usaremos esse data frame, é seguro usar o attach
+# Usar attach(df) se não quiser ficar digitando df$ em cada variável
+
 ```
 ## Estudo sobre a base Titanic
 
@@ -24,9 +25,9 @@ A base de dados escolhida é a Titanic porque se trata de um acidente histórico
 
 Vale dizer, sua utilização em estudos se deve ao fato dessa base possuir poucas variáveis, mas em quantidade suficiente para aplicar diversas técnicas estatísticas.
 
-2. Primeiras Análises
-
 O **RMS Titanic** foi um navio luxuoso construído para ser 'inafundável'. Partiu dia 10 de abril de 1912 com 2224 pessoas (passageiros e tripulantes) e o acidente ocorreu dia 15 de abril daquele ano, acarretando em mais de 1500 mortes [(ver Wikipédia)](https://en.wikipedia.org/wiki/Titanic).
+
+2. Primeiras Análises
 
 A base analisada tem `r nrow(df)` observações e `r nrow(df)` variáveis, as quais serão apresentadas a seguir.
 
@@ -56,6 +57,20 @@ Observe o tipo das variáveis e depois os primeiros registros em forma tabular:
 str(df)
 head(df)
 ```
+
+Antes de analisarmos as variáveis individualmente (e cruzando-as com a variável respostas), vale observar a tabela resumo que apresenta as frequências das variáveis qualitativas, medidas descrtivas nas variáveis quantitativas e a quantidade de registros faltantes em cada atributo:
+
+```{r}
+summary(df)
+```
+
+Percebemos pela tabela resumo que cada categoria das variáveis qualitativas possuem ao menos 10% de representantes, o que é bom para formularmos hipóteses iniciais.
+Quanto às informações faltantes, a única variável alarmante é a idade (20% dos registros). Como algumas técnicas de modelagem não permitem a utilização de "missings", podemos contornar esse problema de três formas:
+
+1. removendo registros faltantes - quando são poucos;
+2. utilizando o valor médio (ou a moda) amostral - quando a variável ainda possa contribuir para explicar a variável resposta;
+3. excluíndo a variável do modelo - quando são muitos registros faltantes.
+
 Agora, passemos a analisar cada variável individualmente e com a variável resposta. Para facilitar a apresentação, separaremos as variáveis qualitativas e quantitativas.
 
     2.2 Variáveis Qualitativas
@@ -78,9 +93,24 @@ barplot(table(df$survived,df$sex),legend.text = TRUE)
 
 ```
 
-Pela apreciação do gráfico, percebe-se que as mulheres tiveram mais chances de sobrevivência que os homens, indicando assim que a variável sexo pode ajudar a explicar a sobrevivência de um passageiro.
+Pela apreciação desse gráfico, percebe-se que as mulheres tiveram mais chances de sobrevivência que os homens, indicando assim que a variável sexo pode ajudar a explicar a sobrevivência de um passageiro.
+
+**Embarked** (C - Cherbourg, Q - Queenstown ou S - Southampton)
+
+```{r, echo=TRUE}
+pie(x=table(df$embarked))
+
+```
+
+Percebemos que o Porto de Southampton é o mais frequente. Quanto ao comportamento desta variável em relação a resposta temos:
+
+```{r, echo=TRUE}
+barplot(table(df$survived,df$embarked),legend.text = TRUE)
+
+```
 
 2.2.2 Variáveis Qualitativas Ordinais
+
 **Pclass** (1, 2 ou 3)
 
 ```{r, echo=TRUE}
@@ -90,10 +120,19 @@ barplot(table(df$survived,df$pclass),legend.text = TRUE)
 Observando o gráfico acima, percebemos que a 3ra classe é a mais frequente. Além disso, temos a sugestão de que quanto pior é a classe menor é a chance de sobreviência de um passageiro.
 
 2.3 Variáveis Quantitativas Discretas
+
 **Sibsp** (Número de irmãos e ou esposos)
 
 ```{r, echo=TRUE}
 hist(df$sibsp)
 ```
 
-A maioria dos passageiros possuía embarcou sozinho ou com um(a) espos(a)(ou irmã(o)). Talvez podemos categorizar essa variável em "possui" ou "não possui" irmãos ou esposos.
+A maioria dos passageiros embarcou sozinho ou com apenas um(a) espos(a)(ou irmã(o)). Talvez podemos categorizar essa variável em "possui" ou "não possui" irmãos ou esposos.
+
+**Parch** (Número de pais ou filhos a bordo)
+
+```{r, echo=TRUE}
+hist(df$parch)
+```
+
+Assim como sibsp, a maioria dos passageiros embarcou sozinho ou possuía apenas um ou dois filhos (ou pais).
