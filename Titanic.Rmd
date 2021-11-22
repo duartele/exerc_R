@@ -1,7 +1,7 @@
 ---
 title: "Titanic"
 author: "Leandro Duarte"
-date: "11/18/2021"
+date: "25/12/2021"
 output: html_document
 ---
 
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ```{r, echo=FALSE, eval=TRUE}
 # Use getwd() para ver se está no diretorio correto
-df<-read.csv2("titanic.csv",colClasses = c("factor", "factor","factor","numeric","integer","integer","numeric", "factor","factor")) #Como importei a base
+df<-read.csv2("titanic.csv",colClasses = c("factor", "factor","factor","numeric","integer","integer","numeric", "factor","factor")) #Como importei a base - com os tipos corretos
 
 # Usar attach(df) se não quiser ficar digitando df$ em cada variável
 
@@ -19,17 +19,23 @@ df<-read.csv2("titanic.csv",colClasses = c("factor", "factor","factor","numeric"
 
 1. Introdução
 
-O objetivo primordial deste estudo é aplicar os conhecimentos aprendidos em Estatística Computacional com o professor Luís Machado (MECD), apresentando os passos e comandos utilizados nos softwares R e SPSS.
+O objetivo primordial deste estudo é aplicar os conhecimentos aprendidos em Estatística Computacional com o professor Luís Machado (MECD), apresentando os passos e comandos utilizados nos softwares R e PSPP (ou SPSS). Além disso, foi ambicionado fazer uma Análise Descritiva (Uni e Muldimensional), Estimações (Pontual e Intervalar) e, por fim, apresentar alguns modelos para a previsão da variável resposta.
 
-A base de dados escolhida é a Titanic porque se trata de um acidente histórico que até hoje está no imaginário popular e também por ser bastante usada nos estudos iniciais de Machine Learning.
+Para cumprir tais objetivos, foi escolhido trabalhar com a base de dados Titanic porque ela apresenta uma quantidade razoável de variáveis explicativas quantitativas (ordinais e nominais) e qualitativas (discretas e contínuas). Ademais, referida base é proveniente de um acidente histórico real que até hoje é relembrado pelas pessoas, as quais assistiram aos filmes e foram (ou desejaram ir) ao museu do Titanic, em Belfast.
 
-Vale dizer, sua utilização em estudos se deve ao fato dessa base possuir poucas variáveis, mas em quantidade suficiente para aplicar diversas técnicas estatísticas.
+Com efeito, o **RMS Titanic** foi um navio luxuoso construído para ser 'inafundável'. Partiu dia 10 de abril de 1912 com 2224 pessoas (passageiros e tripulantes) e o acidente ocorreu dia 15 de abril daquele ano, acarretando provavelmente em mais de 1500 mortes (foi estimado que o total de mortes está entre 1490 e 1635) [(ver Wikipédia)](https://en.wikipedia.org/wiki/Titanic).
 
-O **RMS Titanic** foi um navio luxuoso construído para ser 'inafundável'. Partiu dia 10 de abril de 1912 com 2224 pessoas (passageiros e tripulantes) e o acidente ocorreu dia 15 de abril daquele ano, acarretando em mais de 1500 mortes [(ver Wikipédia)](https://en.wikipedia.org/wiki/Titanic).
+Considerando que a base que temos acesso possui informações sobre `r nrow(df)` passageiros, ou seja, praticamente todos os existentes (2224 - 688 tripulantes ~= base), as medidas calculadas seriam populacionais e não amostrais, o que inviabilizaria fazer inferências ou construir modelos. Então, todo o exposto será uma abstração para focarmos nas técnicas computacionais e estatísticas.
+
+Dito isto, consideraremos que estamos interessados em prever se um passageiro sobreviveu ao acidente, tendo posse de algumas informações sobre ele, ou seja, a variável resposta será "survived", caracterizada pela flag 1 se o passageiro sobreviveu ao acidente ou 0 em caso contrário. A proporção de sobreviventes na base foi de `r round(table(df$survived)[2]/nrow(df)*100,2)`%.
+
+Pela Análise da Descritiva, percebemos que a proporção de mulheres que sobreviveram ao acidente foi de 72,75%, enquanto que a dos homens foi apenas de 19,10%. Também percebemos que as pessoas que viajaram na primeira classe tiveram uma maior taxa de sobrevivência (de 61,92% contra 25,53% dos que viajaram na terceira classe). Pessoas que embarcaram no porto "C" (Cherbourg) também possuíram uma proporção maior de sobrevivência (55,56% contra 33,56% nos outros portos). Não pareceu ter uma associação linear entre as pessoas que embarcaram irmã(o)s (ou esposo(a)). Em contrapartida, as que embarcaram com pais (ou filhos) tiveram uma proporção maior de sobrevivência. Através da idade, percebemos que as crianças tiveram maior chance de sobrevivência e, por fim, as pessoas que pagaram mais nas passagens também tiveram maior chance de sobrevivência.  
+
+Vimos, ainda, que o intervalo de confiança de 95% de probabilidade obtido pela amostra para obter a proporção de sobreviventes é de [0,35;0,40]. Considerando que a proporção de sobreviventes informada no site da Wikipédia está entre [0,2648;0,3525], podemos supor que os tripulantes tiveram menos chance de sobrevivência, pois só consideramos os passageiros neste trabalho.
+
+Por fim, foi apresentado um modelo de regressão logística, o qual utilizou as variáveis xpto e que apresentou uma acurácia de 75%, um modelo de KNN, o qual mostrou uma acurácia de 70% quando escolhido o hiperparâmetro de 5 vizinhos e também uma árvore de decisão.
 
 2. Primeiras Análises
-
-A base analisada tem `r nrow(df)` observações e `r nrow(df)` variáveis, as quais serão apresentadas a seguir.
 
     2.1 Dicionário de variáveis
 
@@ -54,6 +60,7 @@ A base analisada tem `r nrow(df)` observações e `r nrow(df)` variáveis, as qu
 Observe o tipo das variáveis e depois os primeiros registros em forma tabular:
 
 ```{r, echo=TRUE, eval=TRUE}
+df<-subset(df, select=-death)
 str(df)
 head(df)
 ```
@@ -79,7 +86,13 @@ Agora, passemos a analisar cada variável individualmente e com a variável resp
 **Sex** (female ou male)
 
 ```{r, echo=TRUE}
-pie(x=table(df$sex), labels=c("Female","Male"), col = c("lightblue", "lightgreen"))
+
+label.pie<-c("Female","Male")
+freq<-round(table(df$sex)/nrow(df)*100,2)
+label.pie<-paste(label.pie,freq)
+label.pie<-paste(label.pie,"%",sep="")
+pie(x=table(df$sex), labels=label.pie, col = c("lightpink", "lightblue"))
+
 ```
 
 Das `r  nrow(df)` observações, temos `r table(df$sex)[1]` mulheres (`r round(table(df$sex)[1]/nrow(df)*100,2)`%) e
@@ -89,50 +102,163 @@ No gráfico a seguir, veremos para cada uma dessas categorias o comportamento da
 
 
 ```{r, echo=TRUE}
-barplot(table(df$survived,df$sex),legend.text = TRUE)
+barplot(table(df$survived,df$sex), xlab="Sobrevivência por Sexo", ylab="Frequência",
+        legend.text = TRUE, beside=FALSE)
+
 
 ```
 
-Pela apreciação desse gráfico, percebe-se que as mulheres tiveram mais chances de sobrevivência que os homens, indicando assim que a variável sexo pode ajudar a explicar a sobrevivência de um passageiro.
+
+Pela apreciação desse gráfico, percebe-se que a proporção de sobrevivência das mulheres é bem superior a dos homens (72,75% contra 19,09%), indicando assim que a variável sexo pode ajudar a explicar a sobrevivência de um passageiro.
 
 **Embarked** (C - Cherbourg, Q - Queenstown ou S - Southampton)
 
 ```{r, echo=TRUE}
-pie(x=table(df$embarked))
+
+label.pie<-c("Na", "C","Q", "S")
+freq<-round(table(df$embarked)/nrow(df)*100,2)
+label.pie<-paste(label.pie,freq)
+label.pie<-paste(label.pie,"%",sep="")
+pie(x=table(df$embarked), labels=label.pie)
 
 ```
 
-Percebemos que o Porto de Southampton é o mais frequente. Quanto ao comportamento desta variável em relação a resposta temos:
+Percebemos que o Porto de Southampton é o mais frequente e que só possuímos 2 valores faltantes. Quanto ao comportamento desta variável em relação a resposta temos:
 
 ```{r, echo=TRUE}
-barplot(table(df$survived,df$embarked),legend.text = TRUE)
+
+barplot(table(df$survived,df$embarked), xlab="Sobrevivência por Porto de Embarque", ylab="Frequência",
+        legend.text = TRUE, beside=TRUE)
 
 ```
+
+Pela apreciação do gráfico, percebemos que apenas no porto C a proporção de sobreviventes foi maior que a de falecidos. Além disso, temos que a proporção de sobreviventes no porto Q está muito próxima da do S.
 
 2.2.2 Variáveis Qualitativas Ordinais
 
 **Pclass** (1, 2 ou 3)
 
 ```{r, echo=TRUE}
-barplot(table(df$survived,df$pclass),legend.text = TRUE)
+
+label.pie<-c("1=","2=", "3=")
+freq<-round(table(df$pclass)/nrow(df)*100,2)
+label.pie<-paste(label.pie,freq)
+label.pie<-paste(label.pie,"%",sep="")
+pie(x=table(df$pclass), labels=label.pie)
+
 ```
 
-Observando o gráfico acima, percebemos que a 3ra classe é a mais frequente. Além disso, temos a sugestão de que quanto pior é a classe menor é a chance de sobreviência de um passageiro.
+Observando o gráfico acima, percebemos que a Terceira classe é a mais frequente. Quanto a proporção de sobreviventes, temos:
 
-2.3 Variáveis Quantitativas Discretas
+
+```{r, echo=TRUE}
+barplot(table(df$survived,df$pclass), xlab="Sobrevivência por Classe de Embarque", ylab="Frequência",
+        legend.text = TRUE, beside=TRUE)
+
+```
+
+Temos a sugestão de que quanto pior é a classe menor é a proporção de sobreviência de um passageiro, sendo que houve mais sobreviventes na primeira classe que falecidos.
+
+   2.3 Variáveis Quantitativas
+   2.3.1 Variáveis Quantitativas Discretas
 
 **Sibsp** (Número de irmãos e ou esposos)
 
 ```{r, echo=TRUE}
-hist(df$sibsp)
+
+layout(matrix(c(1,2),ncol=2))
+hist(df$sibsp, freq = TRUE ,ylab = "Frequência", xlab="Número de irmãos ou esposos",main="")
+boxplot(df$sibsp)
+
 ```
 
-A maioria dos passageiros embarcou sozinho ou com apenas um(a) espos(a)(ou irmã(o)). Talvez podemos categorizar essa variável em "possui" ou "não possui" irmãos ou esposos.
+Pelos gráficos acima, perebe-se que a maioria dos passageiros embarcou sozinho ou com apenas um(a) espos(a)(ou irmã(o)). Com efeito, apenas 4,35% dos passageiros possuía 3 ou mais irmãos.
+Levando isto em consideração, talvez seja mais interessante pensar nesta variável como se fosse categórica, agrupando os valores desde que faça sentido.
+
+
+```{r, echo=TRUE}
+
+barplot(table(df$survived,df$sibsp), xlab="Sobrevivência por número de irmãos", ylab="Frequência",
+        legend.text = TRUE, beside=TRUE)
+
+```
+
+Quando olhamos as proporções de sobreviventes, não conseguimos ver uma associação linear. De fato, os que embarcaram sozinhos tiveram menos chance de sobrevivência dos que embarcaram com 1 ou 2 irmãos, porém com 3 ou mais irmãos a proporção de sobrevivência já fica bem baixa. Agrupar em 3 ("não possui", "possui 1 ou 2" e "possui mais de 2") pode até dar uma contribuição na modelagem, mas o resultado não seria interpretativo. Então, talvez esta variável não seja utilizada nos modelos.
 
 **Parch** (Número de pais ou filhos a bordo)
 
 ```{r, echo=TRUE}
-hist(df$parch)
+
+layout(matrix(c(1,2),ncol=2))
+hist(df$parch, freq = TRUE ,ylab = "Frequência", xlab="Número de pais ou filhos",main="")
+boxplot(df$parch)
+
 ```
 
-Assim como sibsp, a maioria dos passageiros embarcou sozinho ou possuía apenas um ou dois filhos (ou pais).
+Assim como sibsp, a maioria dos passageiros embarcou sozinho ou possuía apenas um ou dois filhos (ou pais). Utilizando o mesmo raciocínio da variável anterior, temos:
+
+```{r, echo=TRUE}
+
+barplot(table(df$survived,df$parch), xlab="Sobrevivência por número de pais ou filhos", ylab="Frequência",
+        legend.text = TRUE, beside=TRUE)
+
+```
+
+Aqui parece que há uma associação linear entre número de filhos e proporção de sobrevivência. Porém, como há poucas observações com mais de 2 filhos (1,3%), talvez o único agrupamento que faça sentido seria "não possui" contra "possui".  
+
+   2.3.2 Variáveis Quantitativas Contínuas
+
+**Age**
+
+```{r, echo=TRUE}
+
+layout(matrix(c(1,2),ncol=2))
+hist(df$age, freq = TRUE ,ylab = "Frequência", xlab="Idade",main="")
+boxplot(df$age)
+
+```
+
+Pela apreciação dos gráficos, percebe-se que as faixas ]20,25] e ]25,30] são mais frequentes, com uma leve assimetria à direita.
+
+Será que esta variável segue uma distribuição aproximadamente normal? Podemos colocar uma curva normal para ver se seria possível esta aproximação.
+
+```{r}
+
+hist(df$age, freq = FALSE ,ylab = "Frequência", xlab="Idade",main="")
+curve(dnorm(x,mean = mean(df$age, na.rm = TRUE),sd=sd(df$age, na.rm = TRUE)),add=TRUE)
+rug(df$age)
+abline(v=mean(df$age, na.rm = TRUE),col="red")
+
+```
+
+Comparando as distribuições dos que sobreviveram e a dos que faleceram, não conseguimos notar diferenças significativas através de boxplots. Se não, vejamos:
+
+```{r}
+
+boxplot(df$age~df$survived)
+
+```
+
+Porém, utilizando histogramas, percebe-se que crianças e adolescentes tiveram mais chances de sobrevivência. Contudo, eles representam menos de 12% da base, o que poderá inviabilizar o uso desta variável no modelo.
+
+```{r}
+
+mor<-df$age[df$survived==0]
+viv<-df$age[df$survived==1]
+
+layout(matrix(c(1,2),ncol=1))
+hist(mor, freq = FALSE, breaks = 12, xlab = "Falecidos", main="")
+hist(viv, freq = FALSE, col = "lightblue", breaks = 12, xlab = "Sobreviventes", main="")
+
+```
+
+
+**Fare**
+
+```{r, echo=TRUE}
+hist(df$fare)
+```
+
+Percebemos que a variável **fare** possui valores mais localizados à esquerda do gráfico. Vale dizer, uma das causas são os valores extremos que estão aumentando a amplitude de cada intervalo ("bins" é o termo em inglês). Antes de fazermos algum ajuste, é de bom alvitre olharmos o comportamento desta variável em relação à resposta.
+
+
