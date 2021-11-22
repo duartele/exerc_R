@@ -1,8 +1,22 @@
+
 setwd("C:/Users/lndox/OneDrive/Documentos/Mestrado Portugal/Computacao/Trabalho")
 df<-read.csv2("titanic.csv",colClasses = c("factor", "factor", "factor", "numeric",
                "integer", "integer", "numeric", "factor",
                "factor"))
 
+df$fare<-ifelse(df$fare>50,50,df$fare)
+
+
+for (val in df$fare){
+  if(val>300){
+  df$fare <- 300
+}
+} 
+df$fare[df$fare>300]
+
+df<- subset(df, select = -death)
+summary(df)
+?subset
 barplot(table(df$survived,df$sex),beside =TRUE,legend=c("Morreu","Viveu"))
 barplot(table(df$survived,df$sex))
 legend("topleft",legend=c("Morreu","Viveu"))
@@ -190,9 +204,18 @@ Número de obs faltantes: `r  which(is.na(df$parch));
                                                             
                                                             + **embarked**: Porto de Embarque. Possíveis valores: C (Cherbourg), Q (Queenstown) ou S (Southampton). Classificação: Variável Qualitativa Nominal.
                                                             Número de obs faltantes: `r  which(is.na(df$embarked));
-                                                            
+  
+                                                                                                                      
                                                             + **death**: Morte (ou não) do passageiro. Possíveis valores: 0 (não morreu) ou 1(morreu). Esta variável será descartada porque foi obtida pela variável **survived**.
                                                             
                                                             
-                                                            Vale dizer, seria mais interessante se a variável sibsp fosse dividida em duas (uma só para irmãos e outra só para esposas). Nesse sentido, parch também poderia estar separada.
+                                                            Vale dizer, seria mais interessante se a variável sibsp fosse dividida em duas (uma só para irmãos e outra só para esposas). Nesse sentido, parch também poderia estar separada
                                                             
+                                                            hist(df$parch)
+                                                            table(df$parch)
+df$embarked[df$embarked != "S"  "Q", "S")]                                                            
+split(df, df$embarked)
+df[169,]
+summary(df)
+?drop
+?remove
