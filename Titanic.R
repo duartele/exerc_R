@@ -4,6 +4,32 @@ df<-read.csv2("titanic.csv",colClasses = c("factor", "factor", "factor", "numeri
                "integer", "integer", "numeric", "factor",
                "factor"))
 
+
+calc_faixa_etaria<-function(idade=NA){
+  if(is.na(idade)){
+    faixa_etaria = "3.Sem idade informada"
+    return(faixa_etaria)
+  }else if(idade<=15){
+    faixa_etaria = "1.Crianças e jovens"
+    return(faixa_etaria)
+  } else{
+    faixa_etaria = "2.Adultos"
+    return(faixa_etaria)
+  }
+}
+
+df["faixa_etaria"]<-sapply(df$age,FUN=calc_faixa_etaria)
+
+table(df$survived,df$faixa_etaria)
+
+boxplot(df$age~df$survived)
+
+boxplot(df$fare~df$survived, ylab = "Valor da Tarifa", xlab="Sobrevivência",main="")
+
+
+
+
+
 df$fare<-ifelse(df$fare>50,50,df$fare)
 
 
