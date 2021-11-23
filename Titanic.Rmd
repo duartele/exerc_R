@@ -23,15 +23,17 @@ O objetivo primordial deste estudo é aplicar os conhecimentos aprendidos em Est
 
 Para cumprir tais objetivos, foi escolhido trabalhar com a base de dados Titanic porque ela apresenta uma quantidade razoável de variáveis explicativas quantitativas (ordinais e nominais) e qualitativas (discretas e contínuas). Ademais, referida base é proveniente de um acidente histórico real que até hoje é relembrado pelas pessoas, as quais assistiram aos filmes e foram (ou desejaram ir) ao museu do Titanic, em Belfast.
 
-Com efeito, o **RMS Titanic** foi um navio luxuoso construído para ser 'inafundável'. Partiu dia 10 de abril de 1912 com 2224 pessoas (passageiros e tripulantes) e o acidente ocorreu dia 15 de abril daquele ano, acarretando provavelmente em mais de 1500 mortes (foi estimado que o total de mortes está entre 1490 e 1635) [(ver Wikipédia)](https://en.wikipedia.org/wiki/Titanic).
+Com efeito, o **RMS Titanic** foi um navio luxuoso construído para ser 'inafundável'. Partiu dia 10 de abril de 1912 com 2224 pessoas (passageiros e tripulantes) e o acidente ocorreu dia 15 de abril daquele ano, acarretando provavelmente em **mais de 1500 mortes** (foi estimado que o total de mortes está entre 1490 e 1635) [(ver Wikipédia)](https://en.wikipedia.org/wiki/Titanic).
 
 Considerando que a base que temos acesso possui informações sobre `r nrow(df)` passageiros, ou seja, praticamente todos os existentes (2224 - 688 tripulantes ~= base), as medidas calculadas seriam populacionais e não amostrais, o que inviabilizaria fazer inferências ou construir modelos. Então, todo o exposto será uma abstração para focarmos nas técnicas computacionais e estatísticas.
 
 Dito isto, consideraremos que estamos interessados em prever se um passageiro sobreviveu ao acidente, tendo posse de algumas informações sobre ele, ou seja, a variável resposta será "survived", caracterizada pela flag 1 se o passageiro sobreviveu ao acidente ou 0 em caso contrário. A proporção de sobreviventes na base foi de `r round(table(df$survived)[2]/nrow(df)*100,2)`%.
 
-Pela Análise da Descritiva, percebemos que a proporção de mulheres que sobreviveram ao acidente foi de 72,75%, enquanto que a dos homens foi apenas de 19,10%. Também percebemos que as pessoas que viajaram na primeira classe tiveram uma maior taxa de sobrevivência (de 61,92% contra 25,53% dos que viajaram na terceira classe). Pessoas que embarcaram no porto "C" (Cherbourg) também possuíram uma proporção maior de sobrevivência (55,56% contra 33,56% nos outros portos). Não pareceu ter uma associação linear entre as pessoas que embarcaram irmã(o)s (ou esposo(a)). Em contrapartida, as que embarcaram com pais (ou filhos) tiveram uma proporção maior de sobrevivência. Através da idade, percebemos que as crianças tiveram maior chance de sobrevivência e, por fim, as pessoas que pagaram mais nas passagens também tiveram maior chance de sobrevivência.  
+Pela Análise da Descritiva, percebemos que a proporção de mulheres que sobreviveram ao acidente foi de 72,75%, enquanto que a dos homens foi apenas de 19,10%. Também percebemos que as pessoas que viajaram na primeira classe tiveram uma maior taxa de sobrevivência (de 61,92% contra 25,53% dos que viajaram na terceira classe). Pessoas que embarcaram no porto "C" (Cherbourg) também possuíram uma proporção maior de sobrevivência (55,56% contra 33,56% nos outros portos).
 
-Vimos, ainda, que o intervalo de confiança de 95% de probabilidade obtido pela amostra para obter a proporção de sobreviventes é de [0,35;0,40]. Considerando que a proporção de sobreviventes informada no site da Wikipédia está entre [0,2648;0,3525], podemos supor que os tripulantes tiveram menos chance de sobrevivência, pois só consideramos os passageiros neste trabalho.
+Em contrapartida, a variável sibsp não pareceu contribuir para entendermos melhor a variável resposta, pois a maioria dos valores é 0 e ainda não há uma associação linear entre ela e a variável resposta. No tocante à variável parch, também verificamos que a maioria dos valores é 0, mas podemos tentar fazer uma dicotomia entre possui (pais ou filhos) ou não possui. Através da idade, percebemos que as crianças tiveram maior chance de sobrevivência, mas esta variável apresenta muitos valores faltante (mais de 20% da base) e, ainda, para adultos a variável não parece contribuir para explicar a variável resposta. Quanto os passageiros que pagaram mais caro nas passagens também tiveram maior chance de sobrevivência, mas esta variável está bastante correlacionada com a variável pclass.  
+
+Vimos, ainda, que o intervalo de confiança de 95% de probabilidade obtido pela amostra para obter a proporção de sobreviventes é de [0,35;0,40]. Considerando que a proporção de sobreviventes informada no site da Wikipédia está entre [0,2648;0,3525], podemos supor que os tripulantes tiveram menos chance de sobrevivência, pois só consideramos os passageiros neste trabalho. Outra possibilidade é que a chance de sobrevivência dos poucos passageiros que não fizem parte da amostra seja ainda menor que a dos pertencentes na amostra.
 
 Por fim, foi apresentado um modelo de regressão logística, o qual utilizou as variáveis xpto e que apresentou uma acurácia de 75%, um modelo de KNN, o qual mostrou uma acurácia de 70% quando escolhido o hiperparâmetro de 5 vizinhos e também uma árvore de decisão.
 
@@ -65,20 +67,17 @@ str(df)
 head(df)
 ```
 
-Antes de analisarmos as variáveis individualmente (e cruzando-as com a variável respostas), vale observar a tabela resumo que apresenta as frequências das variáveis qualitativas, medidas descrtivas nas variáveis quantitativas e a quantidade de registros faltantes em cada atributo:
+Antes de analisarmos as variáveis, vale observar a tabela resumo, que apresenta as frequências das variáveis qualitativas, medidas descritivas nas variáveis quantitativas e a quantidade de registros faltantes em cada atributo:
 
 ```{r}
 summary(df)
 ```
 
-Percebemos pela tabela resumo que cada categoria das variáveis qualitativas possuem ao menos 10% de representantes, o que é bom para formularmos hipóteses iniciais.
-Quanto às informações faltantes, a única variável alarmante é a idade (20% dos registros). Como algumas técnicas de modelagem não permitem a utilização de "missings", podemos contornar esse problema de três formas:
+Percebemos pela tabela resumo que cada categoria das variáveis qualitativas possuem ao menos 10% de representantes, o que garante alguma representatividade das categorias.
 
-1. removendo registros faltantes - quando são poucos;
-2. utilizando o valor médio (ou a moda) amostral - quando a variável ainda possa contribuir para explicar a variável resposta;
-3. excluíndo a variável do modelo - quando são muitos registros faltantes.
+Quanto às informações faltantes, a única variável alarmante é a idade (20% dos registros) - ver seção 2.3.2 **Age** para ver algumas formas de contornar este problema.
 
-Agora, passemos a analisar cada variável individualmente e com a variável resposta. Para facilitar a apresentação, separaremos as variáveis qualitativas e quantitativas.
+Após essas considerações preliminares, podemos passar para as Análises Descritivas. 
 
     2.2 Variáveis Qualitativas
     2.2.1 Variáveis Qualitativas Nominais
@@ -140,7 +139,7 @@ Pela apreciação do gráfico, percebemos que apenas no porto C a proporção de
 
 ```{r, echo=TRUE}
 
-label.pie<-c("1=","2=", "3=")
+label.pie<-c("Primeira","Segunda", "Terceira")
 freq<-round(table(df$pclass)/nrow(df)*100,2)
 label.pie<-paste(label.pie,freq)
 label.pie<-paste(label.pie,"%",sep="")
@@ -173,8 +172,7 @@ boxplot(df$sibsp)
 ```
 
 Pelos gráficos acima, perebe-se que a maioria dos passageiros embarcou sozinho ou com apenas um(a) espos(a)(ou irmã(o)). Com efeito, apenas 4,35% dos passageiros possuía 3 ou mais irmãos.
-Levando isto em consideração, talvez seja mais interessante pensar nesta variável como se fosse categórica, agrupando os valores desde que faça sentido.
-
+Levando isto em consideração, talvez seja mais interessante pensar nesta variável como se fosse categórica, o que resultaria em:
 
 ```{r, echo=TRUE}
 
@@ -183,7 +181,7 @@ barplot(table(df$survived,df$sibsp), xlab="Sobrevivência por número de irmãos
 
 ```
 
-Quando olhamos as proporções de sobreviventes, não conseguimos ver uma associação linear. De fato, os que embarcaram sozinhos tiveram menos chance de sobrevivência dos que embarcaram com 1 ou 2 irmãos, porém com 3 ou mais irmãos a proporção de sobrevivência já fica bem baixa. Agrupar em 3 ("não possui", "possui 1 ou 2" e "possui mais de 2") pode até dar uma contribuição na modelagem, mas o resultado não seria interpretativo. Então, talvez esta variável não seja utilizada nos modelos.
+Quando olhamos as proporções de sobreviventes, não conseguimos ver uma associação linear. De fato, os que embarcaram sozinhos tiveram menos chance de sobrevivência dos que embarcaram com 1 ou 2 irmãos, porém com 3 ou mais irmãos a proporção de sobrevivência já fica bem baixa. Fazer um agrupamento em 3 conglomerados("não possui", "possui 1 ou 2" e "possui mais de 2") pode até dar uma contribuição na modelagem, mas o resultado não seria interpretativo. Então, talvez esta variável não seja utilizada nos modelos.
 
 **Parch** (Número de pais ou filhos a bordo)
 
@@ -218,9 +216,7 @@ boxplot(df$age)
 
 ```
 
-Pela apreciação dos gráficos, percebe-se que as faixas ]20,25] e ]25,30] são mais frequentes, com uma leve assimetria à direita.
-
-Será que esta variável segue uma distribuição aproximadamente normal? Podemos colocar uma curva normal para ver se seria possível esta aproximação.
+Pela apreciação dos gráficos, percebe-se que as faixas ]20,25] e ]25,30] são mais frequentes, com uma leve assimetria à direita. Para ilustramos nossa assertiva, observe a distribuição da amostra com a comparação de uma curva normal.
 
 ```{r}
 
@@ -251,6 +247,33 @@ hist(mor, freq = FALSE, breaks = 12, xlab = "Falecidos", main="")
 hist(viv, freq = FALSE, col = "lightblue", breaks = 12, xlab = "Sobreviventes", main="")
 
 ```
+
+Por fim, observando o comportamento das observações sem valores na variável idade, temos que apenas 73 dos 263 passageiros sobreviveram(27,76%). 
+
+ Como algumas técnicas de modelagem não permitem a utilização de "missings", podemos contornar esse problema de algumas formas:
+
+1. removendo registros faltantes - **quando são poucos** - Aqui não é o caso, pois 20% da base está com valores faltantes;
+2. utilizando o valor médio (ou a moda) amostral - quando a variável ainda possa contribuir para explicar a variável resposta - não parede fazer sentido nesta variável, pois a taxa de sobrevivência dos passageiros sem idade indicada é bem baixa;
+3. excluíndo a variável do modelo - quando são muitos registros faltantes - 20% da base certamente não é um número pequeno, mas descartar informações de 80% da base por causa desses faltantes parece ser um procedimento muito conservador.
+
+Considerando que essas 3 medidas não se aplicam para a variável idade, podemos agrupar a idade em três conglomerados: 1.Crianças e jovens; 2.Adultos; 3.Sem idade informada. Para essa nova variável (faixa_etaria) considere o seguinte código:
+
+```{r}
+
+calc_faixa_etaria<-function(idade=NA){
+  if(is.na(idade)){
+    faixa_etaria = "3.Sem idade informada"
+  }else if(idade<=15){
+    faixa_etaria = "1.Crianças e jovens"
+  } else{
+    faixa_etaria = "2.Adultos"
+  }
+}
+
+```
+
+
+
 
 
 **Fare**
