@@ -17,7 +17,7 @@ df<-read.csv2("titanic.csv",colClasses = c("factor", "factor","factor","numeric"
 ```
 ## Introdução e Resumo.
 
-O objetivo primordial deste estudo é aplicar os conhecimentos aprendidos em Estatística Computacional com o professor Luís Machado (MECD), apresentando os passos e comandos utilizados nos softwares R e PSPP (ou SPSS). Além disso, foi ambicionado fazer uma Análise Descritiva (Uni e Muldimensional), Estimações (Pontual e Intervalar) e, por fim, apresentar alguns modelos para a previsão da variável resposta.
+O objetivo primordial deste estudo é aplicar os conhecimentos aprendidos em Estatística Computacional com o professor Luís Machado (MECD), apresentando os passos e comandos utilizados no R. Além disso, foi ambicionado fazer uma Análise Descritiva (Uni e Muldimensional), Estimações (Pontual e Intervalar) e, por fim, apresentar alguns modelos para a previsão da variável resposta.
 
 Para cumprir tais objetivos, foi escolhido trabalhar com a base de dados Titanic porque ela apresenta uma quantidade razoável de variáveis explicativas qualitativas (ordinais e nominais) e quantitativas (discretas e contínuas). Ademais, referida base é proveniente de um acidente histórico real que até hoje é relembrado pelas pessoas, as quais assistiram aos filmes e foram (ou desejaram ir) ao museu do Titanic, em Belfast.
 
@@ -25,11 +25,11 @@ Com efeito, o **RMS Titanic** foi um navio luxuoso construído para ser 'inafund
 
 Considerando que a base que temos acesso possui informações sobre `r nrow(df)` passageiros, ou seja, praticamente todos os existentes (2224 - 688 tripulantes ~= base), as medidas calculadas seriam populacionais e não amostrais, o que inviabilizaria fazer inferências ou construir modelos. Então, todo o exposto será uma abstração para focarmos nas técnicas computacionais e estatísticas.
 
-Dito isto, consideraremos que estamos interessados em prever se um passageiro sobreviveu ao acidente, tendo posse de algumas informações sobre ele, ou seja, a variável resposta será "survived", caracterizada por 1 se o passageiro sobreviveu ao acidente ou 0 em caso contrário. A proporção de sobreviventes na base foi de `r round(table(df$survived)[2]/nrow(df)*100,2)`%.
+Dito isto, consideraremos que estamos interessados em prever se um passageiro sobreviveu ao acidente, tendo posse de algumas informações sobre ele, ou seja, a variável resposta será "survived", caracterizada por 1 se o passageiro sobreviveu ao acidente ou 0 em caso contrário. A taxa de sobreviventes na base foi de `r round(table(df$survived)[2]/nrow(df)*100,2)`%.
 
-Pela Análise da Descritiva, percebemos que a proporção de mulheres que sobreviveram ao acidente foi de 72,75%, enquanto que a dos homens foi apenas de 19,10%. Também percebemos que as pessoas que viajaram na primeira classe tiveram uma maior taxa de sobrevivência (de 61,92% contra 25,53% dos que viajaram na terceira classe). Pessoas que embarcaram no porto "C" (Cherbourg) também possuíram uma proporção maior de sobrevivência (55,56% contra 33,56% nos outros portos).
+Pela Análise da Descritiva, percebemos que a taxa de mulheres que sobreviveram ao acidente foi de 72,75%, enquanto que a dos homens foi apenas de 19,10%. Também percebemos que as pessoas que viajaram na primeira classe tiveram uma maior taxa de sobrevivência (de 61,92% contra 25,53% dos que viajaram na terceira classe). Pessoas que embarcaram no porto "C" (Cherbourg) também possuíram uma taxa maior de sobrevivência (55,56% contra 33,56% nos outros portos).
 
-Em contrapartida, as variáveis **sibsp e parch não parecem** contribuir para entendermos melhor a variável resposta porque a maioria de seus valores é 0. Através da **age**, percebemos que as **crianças e jovens** tiveram **maior** chance de sobrevivência, mas esta variável apresenta muitos valores faltantes (mais de 20% da base), o que compromete sua utilização em alguns modelos. Quanto à **fare**, vemos que os passageiros que pagaram mais caro nas passagens também tiveram maior chance de sobrevivência, mas esta variável está fortemente associada com a variável **pclass**. Apresentaremos algumas possíveis formas de contornar os problemas das variáveis mencionadas neste parágrafo.  
+Em contrapartida, as variáveis **sibsp e parch não parecem** contribuir para entendermos melhor a variável resposta porque a maioria de seus valores é 0. Através da **age**, percebemos que as **crianças e jovens** tiveram **maior** taxa de sobrevivência, mas esta variável apresenta muitos valores faltantes (mais de 20% da base), o que compromete sua utilização em alguns modelos. Quanto à **fare**, vemos que os passageiros que pagaram mais caro nas passagens também tiveram maior taxa de sobrevivência, mas esta variável está fortemente associada com a variável **pclass**. Apresentaremos algumas possíveis formas de contornar os problemas das variáveis mencionadas neste parágrafo.  
 
 No tocante à Inferência Estatística, construímos o intervalo [0,35;0,40] com grau de confiança de 95% para a proporção de passageiros sobreviventes. Considerando que este intervalo não contém  os valores informados no site da Wikipédia (os valores lá apresentados estão entre [0,2648;0,3525]), podemos supor que os tripulantes tiveram menos chance de sobrevivência, pois só consideramos os passageiros neste trabalho. Outra possibilidade é que a os poucos passageiros que não fizem parte da amostra também fizeram com que a porporção de sobreviventes diminuísse.
 
@@ -37,7 +37,7 @@ Por fim, foi apresentado um modelo de regressão logística, o qual utilizou as 
 
 ## Apresentação das Variáveis e Análise Descritiva Univariada.
 
-1. Dicionário de variáveis
+    1. Dicionário de variáveis
 
 + **survived**: Sobrevivência (ou não) dos passageiros. Possíveis valores: 0 (morreu) ou 1 (sobreviveu);
 
@@ -73,9 +73,9 @@ summary(df)
 
 Percebemos pela tabela resumo que cada categoria das variáveis qualitativas possuem ao menos 10% de representantes, o que garante alguma representatividade das categorias.
 
-Quanto às informações faltantes, a única variável alarmante é a idade (20,09% dos registros) - veremos abaixo algumas formas de contornar este problema. Então, passemos para as Análises Descritivas. 
+Quanto às informações faltantes, a única variável alarmante é a idade (20,09% dos registros). Na seção 3.2, apresentaremos algumas formas de contornar este problema. Então, passemos para as Análises Descritivas. 
 
-2. Variáveis Qualitativas
+    2. Variáveis Qualitativas
 
     2.1 Variáveis Qualitativas Nominais
     
@@ -99,7 +99,7 @@ barplot(table(df$survived,df$sex), xlab="Sobrevivência por Sexo", ylab="Frequê
         legend.text = TRUE, beside=FALSE)
 ```
 
-Pela apreciação desse gráfico, percebe-se que a proporção de sobrevivência das mulheres é bem superior a dos homens (72,75% contra 19,09%), indicando assim que a variável sexo pode ajudar a explicar a sobrevivência de um passageiro.
+Pela apreciação desse gráfico, percebe-se que a taxa de sobrevivência das mulheres é **bem superior** a dos homens (72,75% contra 19,09%), indicando assim que a variável sexo pode ajudar a explicar a sobrevivência de um passageiro.
 
 **Embarked** (C - Cherbourg, Q - Queenstown ou S - Southampton)
 
@@ -111,14 +111,14 @@ label.pie<-paste(label.pie,"%",sep="")
 pie(x=table(df$embarked), labels=label.pie)
 ```
 
-Percebemos que o Porto de Southampton é o mais frequente e que só possuímos 2 valores faltantes. Quanto ao comportamento desta variável em relação a resposta temos:
+Percebemos que o Porto de Southampton é o mais frequente e que esta variável só possui 2 valores faltantes. Quanto ao comportamento desta variável em relação a resposta, temos:
 
 ```{r, echo=TRUE}
 barplot(table(df$survived,df$embarked), xlab="Sobrevivência por Porto de Embarque", ylab="Frequência",
         legend.text = TRUE, beside=TRUE)
 ```
 
-Pela apreciação do gráfico, percebemos que apenas no porto C a proporção de sobreviventes foi maior que a de falecidos. Além disso, temos que a proporção de sobreviventes no porto Q está muito próxima da do S.
+Pela apreciação do gráfico, percebemos que apenas no porto C a taxa de sobreviventes foi **maior** que a de falecidos. Além disso, temos que a taxa de sobreviventes no porto Q está **próxima** da do S.
 
     2.2 Variáveis Qualitativas Ordinais
 
@@ -139,9 +139,9 @@ barplot(table(df$survived,df$pclass), xlab="Sobrevivência por Classe de Embarqu
         legend.text = TRUE, beside=TRUE)
 ```
 
-Temos a sugestão de que quanto pior é a classe menor é a proporção de sobreviência de um passageiro, sendo que houve mais sobreviventes na primeira classe que falecidos.
+Temos a sugestão de que quanto pior é a classe menor é a taxa de sobreviência de um passageiro, sendo que houve mais sobreviventes na primeira classe que falecidos.
 
-3. Variáveis Quantitativas
+    3. Variáveis Quantitativas
 
     3.1 Variáveis Quantitativas Discretas
 
@@ -154,14 +154,14 @@ boxplot(df$sibsp)
 ```
 
 Pelos gráficos acima, perebe-se que a maioria dos passageiros embarcou sozinho ou com apenas um(a) esposo(a)(ou irmã(o)). Com efeito, apenas 4,35% dos passageiros possuía 3 ou mais irmãos.
-Levando isto em consideração, talvez seja mais interessante pensar nesta variável como se fosse categórica, o que resultaria em:
+Levando isto em consideração, talvez seja mais interessante pensar nesta variável como se fosse categórica ordinal, o que resultaria em:
 
 ```{r, echo=TRUE}
 barplot(table(df$survived,df$sibsp), xlab="Sobrevivência por número de irmãos", ylab="Frequência",
         legend.text = TRUE, beside=TRUE)
 ```
 
-Quando olhamos as proporções de sobreviventes, não conseguimos ver uma associação linear. De fato, os que embarcaram sozinhos tiveram menos chance de sobrevivência dos que embarcaram com 1 ou 2 irmãos, porém com 3 ou mais irmãos a proporção de sobrevivência já fica bem baixa. Fazer um agrupamento em 3 conglomerados ("não possui", "possui 1 ou 2" e "possui mais de 2") pode até dar uma contribuição na modelagem, mas o resultado não seria interpretativo. Então, talvez seja melhor não utilizarmos esta variável.
+Quando olhamos as taxa de sobrevivência, não conseguimos ver uma associação linear. De fato, os que embarcaram sozinhos tiveram menor taxa de sobrevivência dos que embarcaram com 1 ou 2 irmãos, porém com 3 ou mais irmãos a taxa de sobrevivência já fica bem baixa. Fazer um agrupamento em 3 conglomerados ("não possui", "possui 1 ou 2" e "possui mais de 2") pode até dar uma contribuição na modelagem, mas o resultado não seria interpretativo. Então, talvez seja melhor não utilizarmos esta variável.
 
 **Parch** (Número de pais ou filhos a bordo)
 
@@ -178,7 +178,7 @@ barplot(table(df$survived,df$parch), xlab="Sobrevivência por número de pais ou
         legend.text = TRUE, beside=TRUE)
 ```
 
-Aqui parece que possuir filhos(ou pais) aumenta a taxa de sobrevivência. Porém, como há poucas observações com valores diferentes de 0, talvez teríamos que fazer uma dicotomia ("não possui" contra "possui").  
+Aqui parece que ter embarcado com filhos(ou pais) aumenta a taxa de sobrevivência. Porém, como há poucas observações com valores diferentes de 0, talvez teríamos que fazer uma dicotomia ("não possui" contra "possui").  
 
     3.2 Variáveis Quantitativas Contínuas
 
@@ -190,7 +190,7 @@ hist(df$age, freq = TRUE ,ylab = "Frequência", xlab="Idade",main="")
 boxplot(df$age)
 ```
 
-Pela apreciação dos gráficos, percebe-se que as faixas ]20,25] e ]25,30] são mais frequentes, com uma leve assimetria à direita. Para ilustramos nossa assertiva, observe a distribuição da amostra com a comparação de uma curva normal.
+Pela apreciação dos gráficos, percebe-se que as faixas ]20,25] e ]25,30] são as mais frequentes, com uma leve assimetria à direita. Para ilustramos nossa assertiva, observe a distribuição da amostra com a comparação de uma curva normal.
 
 ```{r}
 hist(df$age, freq = FALSE ,ylab = "Frequência", xlab="Idade",main="")
@@ -199,13 +199,13 @@ rug(df$age)
 abline(v=mean(df$age, na.rm = TRUE),col="red")
 ```
 
-Comparando as distribuições dos que sobreviveram e a dos que faleceram, não conseguimos notar diferenças significativas através de boxplots. Se não, vejamos:
+O gráfico abaixo serve para compararmos as distribuições dos passageiros que sobreviveram e a dos que faleceram ao acidente. Elas aparentam ser muito semelhantes.
 
 ```{r}
 boxplot(df$age~df$survived, ylab = "Idade", xlab="Sobrevivência",main="")
 ```
 
-Porém, utilizando histogramas, percebe-se que crianças e adolescentes tiveram maiores taxas de sobrevivência. Contudo, eles representam menos de 12% da base, o que poderá inviabilizar o uso desta variável no modelo.
+Porém, observando os histogramas com a separação dos sobreviventes, percebe-se que crianças e adolescentes tiveram maiores taxas de sobrevivência.
 
 ```{r}
 mor<-df$age[df$survived==0]
@@ -216,15 +216,15 @@ hist(mor, freq = FALSE, breaks = 12, xlab = "Falecidos", main="")
 hist(viv, freq = FALSE, col = "lightblue", breaks = 12, xlab = "Sobreviventes", main="")
 ```
 
-Por fim, temos que esta variável apresenta 20.09% de seus valores faltantes, quantia esta significante. Além disso, analisando o comportamento das observações sem valores, vemos que a taxa de sobrevivência é baixa (27,76%), representando apenas 73 dos 263 passageiros. 
+Por fim, temos que esta variável apresenta 20.09% de seus valores faltantes, quantia esta significante. Além disso, analisando sua taxa de sobrevivência, vemos que é mais baixa que a dos outros adultos (27,76% contra 38,77%).
 
 Como algumas técnicas de modelagem não permitem a utilização de "missings", podemos contornar esse problema de algumas formas:
 
-1. removendo registros faltantes - **quando são poucos** - Aqui não é o caso, pois 20,09% da base está com valores faltantes;
-2. utilizando o valor médio (ou a moda) amostral - quando a variável ainda possa contribuir para explicar a variável resposta - não parede fazer sentido nesta variável, pois a taxa de sobrevivência dos passageiros sem idade indicada é diferente da verificada na média;
-3. excluíndo a variável do modelo - quando são muitos registros faltantes - 20,09% da base certamente não é um número pequeno, mas considerando o fato de sabermos que não ter a idade informada pode ajudar a explicar o comportamento da variável resposta, descartar esta variado não parece ser o melhor procedimento.
+1. removendo registros faltantes - **quando são poucos** - aqui não é o caso, pois 20,09% da base está com valores faltantes;
+2. substituindo o valor faltante pelo valor médio (ou a moda) amostral - não parece fazer sentido neste caso, pois a taxa de sobrevivência dos passageiros sem idade indicada é menor que a verificada na média;
+3. excluíndo a variável do modelo - quando são muitos registros faltantes - 20,09% da base certamente não é um número pequeno, mas também não é exorbitante. Além disso, o fato da idade estar faltante parece ajudar a explicar o comportamento da variável resposta, então descartar esta variável não parece a melhor solução.
 
-Diante do exposto, o melhor procedimento seria agrupar a idade em três conglomerados: 1.Crianças e jovens; 2.Adultos; 3.Sem idade informada. Para essa nova variável (faixa_etaria) considere o seguinte código:
+Diante do exposto, sugerimos agrupar a idade em três conglomerados: 1.Crianças e jovens; 2.Adultos; 3.Sem idade informada. Para essa nova variável (faixa_etaria) considere o seguinte código:
 
 ```{r}
 calc_faixa_etaria<-function(idade=NA){
@@ -249,11 +249,9 @@ freq<-round(table(df$faixa_etaria)/nrow(df)*100,2)
 label.pie<-paste(label.pie,freq)
 label.pie<-paste(label.pie,"%",sep="")
 
-#layout(matrix(c(1,2),ncol=2))
 pie(x=table(df$faixa_etaria), labels=label.pie)
 barplot(table(df$survived,df$faixa_etaria), xlab="Sobrevivência por Faixa Etária", ylab="Frequência",
         legend.text = TRUE, beside=FALSE)
-
 ```
 
 Como dito, as crianças possuem maior taxa de sobreviência, seguido dos adultos que sabemos a idade e os que não sabemos possuem menor taxa da sobrevivência.
@@ -261,7 +259,7 @@ Como dito, as crianças possuem maior taxa de sobreviência, seguido dos adultos
 **Fare**
 
 ```{r, echo=TRUE}
-hist(df$fare, ylab = "Frequência", xlab = "Valor da Tarifa")
+hist(df$fare, ylab = "Frequência", xlab = "Valor da Tarifa", main="")
 ```
 
 Percebemos que a variável **fare** possui valores mais localizados à esquerda do gráfico. Uma das causas são os valores extremos que estão aumentando a amplitude de cada intervalo ("bins" é o termo em inglês). Antes de fazermos algum ajuste (aumentando o número de bins ou agrupando alguns valores), é de bom alvitre olharmos o comportamento desta variável em relação à resposta.
@@ -276,6 +274,100 @@ Mesmo com os valores extremos distorcendo a escala, percebe-se que os que pagara
 
 Antes de começar, precisamos ressaltar que estamos no primeiro semestre, sem termos feito ainda Análise Multivariada (nem vimos técnicas de modelagem ainda). Então os procedimentos aplicados aqui foram guiados por intuições e podem nem ser os utilizados por profissionais.
 
+Nas seções anteriores, vimos que as pessoas que estavam na primeira classe e as que embarcaram no Porto C tiveram maiores taxas de sobrevivência. Será que há associação entre essas duas variáveis?
+
+```{r, echo=TRUE}
+layout(matrix(c(1,2),ncol=2))
+barplot(table(df$embarked,df$pclass), xlab="Classe por Porto", ylab="Frequência",
+        legend.text = TRUE, beside=FALSE)
+
+barplot(table(df$pclass, df$embarked), xlab="Embarque por Classe", ylab="",
+        legend.text = TRUE, beside=FALSE)
+
+```
+
+Pela apreciação desses gráficos, percebe-se que grande parte dos que embarcaram no porto Q estavam na terceira classe, mas os que embarcaram no S se espalharam pelas outras classes, lembrando que a taxa de sobrevicência do S e Q são próximas. Os que embarcaram no porto C, que tiveram maior taxa de sobrevivência, foram para as três classes, embora haja predominância na primeira. Portanto, há uma associação entre as variáveis, mas são informações que se complementam e não redundantes para a modelagem.  
+
+Seguindo a lógica, supomos que os passageiros que pagaram as maiores tarifas foram para as primeiras classes, do contrário, haveria conflito de informações. Em todo o caso, precisamos averiguar se isto de fato ocorreu.
+
+```{r}
+boxplot(df$fare~df$pclass, ylab = "Valor da Tarifa", xlab="Classe",main="")
+```
+
+Verifica-se que, em geral, os que pagaram mais estão na primeira classe, mas há alguma confusão entre as classes nas tarifas mais baixas. Há observações, inclusive, que parece haver incoerências, por exemplo: por que 8 passageiros da terceira classe pagaram quase 60 valores, sendo que mais de 50 passageiros pagaram menos da metade e estavam na primeira classe?. Vale dizer, esses passageiros não possuíam esposas nem filhos a bordo.
+
+Quanto a essa última informação vem o questionamento: será que há alguma associação entre a classe que embarcou e as variáveis **sibsp** ou **parch**? Pelos que os gráficos abaixo indicam, não há uma associação alarmante.
+
+```{r, echo=TRUE}
+layout(matrix(c(1,2),ncol=2))
+barplot(table(df$sibsp,df$pclass), xlab="Classe por Número de Irmãos", ylab="Frequência",
+        legend.text = FALSE, beside=FALSE) #legenda aqui atrapalha, pois temos muitas categorias - cores mais claras representam mais irmãos
+
+barplot(table(df$pclass, df$sibsp), xlab="Número de Irmãos por Classe", ylab="",
+        legend.text = TRUE, beside=FALSE)
+
+layout(matrix(c(1,2),ncol=2))
+barplot(table(df$parch,df$pclass), xlab="Classe por Número de Pais", ylab="Frequência",
+        legend.text = FALSE, beside=FALSE) #legenda aqui atrapalha, pois temos muitas categorias - cores mais claras representam mais filhos
+
+barplot(table(df$pclass, df$parch), xlab="Número de Pais por Classe", ylab="",
+        legend.text = TRUE, beside=FALSE)
+```
+
+Outro questionamento interessante é a saber a associação entre a idade e a **parch**. Não deveria ter, por exemplos, crianças que embarcaram sozinhas. Para verificarmos isso, vamos observar o gráfico com essas variáveis. 
+
+```{r}
+boxplot(df$parch~df$faixa_etaria, ylab = "Némero de pais (ou filhos)", xlab="Faixa etária",main="")
+```
+
+Como era de se esperar, as crianças possuem ao menos um pai (salvo poucas exceções). E como a maioria dos valores de **parch** é zero, os outros agrupamentos (adultos com ou sem idade informada) ficaram concentrados nos valores zero.
+Por fim, qual é a associação entre **parch** e **sibsp**?
+
+Para responder essa pergunta, podemos observar a correlação entre essas variáveis (apenas 0,3736). Também podemos colocar as variáveis num gráfico de dispersão:
+
+```{r, echo=TRUE}
+plot(df$sibsp~df$parch, xlab="Número de pais (ou filhos)", ylab="Número de irmãos (ou esposas)", main="")
+abline(lm(df$sibsp~df$parch), col="red", lty=1, lwd=2)
+```
+
+Como essas variáveis tentam identificar se o passageiro embarcou sozinho, que tal unirmos essas duas informações numa nova variável? Para fazer isso, conseidere o seguinte código:
+
+
+```{r}
+sozinho<-function(a){
+  if(a>0){
+    sozinho = 0
+    return(sozinho)
+  }else{
+    sozinho = 1
+    return(sozinho)
+  }
+}
+df["sozinho"]<-df$sibsp+df$parch
+df["sozinho"]<-sapply(df$sozinho,FUN=sozinho)
+
+barplot(table(df$survived,df$sozinho), xlab="Sozinho(SIM=1)", ylab="Frequência",
+        legend.text = TRUE, beside=TRUE)
+```
+
+Pela observação do gráfico, percebemos que os passageiros que embarcaram sozinho tiveram uma **taxa menor** de sobrevivência. Então podemos considerar a utilização desta variável na modelagem (também podemos testar os outros agrupamentos propostos neste trabalho). Vale dizer, um dos propósitos da Análise Descritiva é a geração de "insights" e a construção de novas variáveis (ou agrupar existentes), técnica em inglês chamada de "Feature engineering".
+
 ## Inferência Estatística.
+
+Durante a Análise Descritiva, percebemos que algumas variáveis pareciam ajudar a explicar o comportamento da variável resposta. Nesta seção, verificaremos se as diferenças acima encontradas são significativas (ou não) usando técnicas inferenciais.
+
+    1. Estimação Pontual e Intervlar para a variável resposta **survived**
+
+Seja Y uma variável aleatória que representa a sobrevivência de um passageiro, Y poderia assumir 2 valores: 1 (sucesso) se o passageiro sobreviveu e 0 (fracasso) em caso contrário. Neste caso, estaríamos interessados em descobir qual é a probabilidade de sucesso(p). Então Y ~ Bernoulli(p), sendo p o valor do parâmetro que queremos obter(desconhecido).
+
+Assim, supondo que uma sucessão (Yn) seja independente e identicamente distribuída, teríamos que S = Y1 + Y2 + ... Yn teria uma distribuição Binomial (S ~ Bin(n,p)). Além disso, considerando que a n seja grande, podemos usar o TLC (Teorema do Limite Central) e aproximar a distribuição S por uma Normal com média np e variância np(1-p).
+
+Deste modo, como nossa amostra y = (y1, y2, ...., y1309) é uma realização particular de Y = (Y1, Y2, ...., Y1309), o p que queremos encontrar pode ser estimado da seguinte forma:
+p^ = S/n ~ N(p,p(1-p)/n), em que S = quantidade de sobreviventes na amostra e n é o tamanho da amostra.
+
+Logo, p^ = 500/1309 = 0,381971 (Estimativa Pontual)
+
+
+
 ## Modelagem.
 ## Conclusões.
