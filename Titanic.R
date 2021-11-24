@@ -26,7 +26,10 @@ boxplot(df$age~df$survived)
 
 boxplot(df$fare~df$survived, ylab = "Valor da Tarifa", xlab="Sobrevivência",main="")
 
+barplot(table(df$embarked,df$pclass), xlab="Porto de Embarque por Classe", ylab="Frequência",
+        legend.text = FALSE, beside=FALSE)
 
+boxplot(df$fare~df$pclass, ylab = "Valor da Tarifa", xlab="Classe",main="")
 
 
 
@@ -47,13 +50,15 @@ barplot(table(df$survived,df$sex),beside =TRUE,legend=c("Morreu","Viveu"))
 barplot(table(df$survived,df$sex))
 legend("topleft",legend=c("Morreu","Viveu"))
 ?legend
+?barplot
 library(lattice)
 which(is.na(df$survived))
-
+?theme()
 pie(x=table(pathscat), labels=c("<2cm","2-5 cm",">5 cm")
     , col = c("lightblue", "lightgreen", "lightgrey"))
 
-
+cor(df$sibsp,df$parch)
+?cor
 
 
 
@@ -245,3 +250,65 @@ df[169,]
 summary(df)
 ?drop
 ?remove
+
+
+cor(df$sibsp,df$parch)
+
+plot(df$sibsp~df$parch)
+abline(lm(df$sibsp~df$parch), col="red", lty=1, lwd=2)
+
+plot(df$sibsp~df$parch, xlab="Número de pais (ou filhos)", ylab="Número de irmãos (ou esposas)", main="")
+abline(lm(df$sibsp~df$parch), col="red", lty=1, lwd=2)
+
+
+boxplot(df$parch~df$faixa_etaria, ylab = "Némero de pais (ou filhos)", xlab="Faixa etária",main="")
+
+sozinho<-function(a){
+  
+  if(a>0){
+    sozinho = 0
+    return(sozinho)
+  }else{
+    sozinho = 1
+    return(sozinho)
+  }
+}
+sozinho(0,0)
+sozinho(1,0)
+sozinho(NA,1)
+
+df["sozinho"]<-df$sibsp+df$parch
+df["sozinho"]<-sapply(df$sozinho,FUN=sozinho)
+
+lot(df$sibsp~df$parch, col=df$sozinho)
+table(df$sozinho)
+warnings()
+calc_faixa_etaria<-function(idade=NA){
+  if(is.na(idade)){
+    faixa_etaria = "3.Sem idade informada"
+    return(faixa_etaria)
+  }else if(idade<=15){
+    faixa_etaria = "1.Crianças e jovens"
+    return(faixa_etaria)
+  } else{
+    faixa_etaria = "2.Adultos"
+    return(faixa_etaria)
+  }
+}
+
+df["faixa_etaria"]<-sapply(df$age,FUN=calc_faixa_etaria)
+table(df$faixa_etaria)
+
+do_mau<-function(sibsp=0, parch=0){
+  if(is.na(sibsp)){sibsp=0}
+  if(is.na(parch)){parch=0}
+  if(sibsp+parch>0){
+    sozinho = 0
+    return(sozinho)
+  }else{
+    sozinho = 1
+    return(sozinho)
+  }
+}
+
+df["sozinho"]<-sapply(df$sibsp+df$parch,FUN=do_mau)
