@@ -321,7 +321,7 @@ boxplot(df$parch~df$faixa_etaria, ylab = "Némero de pais (ou filhos)", xlab="Fa
 ```
 
 Como era de se esperar, as crianças possuem ao menos um pai (salvo poucas exceções). E como a maioria dos valores de **parch** é zero, os outros agrupamentos (adultos com ou sem idade informada) ficaram concentrados nos valores zero.
-Por fim, qual é a associação entre **parch** e **sibsp**?
+Por fim, qual é a associação linear entre **parch** e **sibsp**?
 
 Para responder essa pergunta, podemos observar a correlação entre essas variáveis (apenas 0,3736). Também podemos colocar as variáveis num gráfico de dispersão:
 
@@ -354,7 +354,7 @@ Pela observação do gráfico, percebemos que os passageiros que embarcaram sozi
 
 ## Inferência Estatística.
 
-Durante a Análise Descritiva, percebemos que algumas variáveis pareciam ajudar a explicar o comportamento da variável resposta. Nesta seção, verificaremos se as diferenças acima encontradas são significativas (ou não) usando técnicas inferenciais.
+Nesta seção, apresentaremos uma estimativa pontual e um intervalo de confiança para a variável **survived**. Além disso, durante a Análise Descritiva, percebemos que algumas variáveis pareciam ajudar a explicar o comportamento da variável resposta. Portanto, verificaremos se as diferenças acima encontradas são significativas (ou não) usando técnicas inferenciais.
 
     1. Estimação Pontual e Intervlar para a variável resposta **survived**
 
@@ -363,9 +363,23 @@ Seja Y uma variável aleatória que representa a sobrevivência de um passageiro
 Assim, supondo que uma sucessão (Yn) seja independente e identicamente distribuída, teríamos que S = Y1 + Y2 + ... Yn teria uma distribuição Binomial (S ~ Bin(n,p)). Além disso, considerando que a n seja grande, podemos usar o TLC (Teorema do Limite Central) e aproximar a distribuição S por uma Normal com média np e variância np(1-p).
 
 Deste modo, como nossa amostra y = (y1, y2, ...., y1309) é uma realização particular de Y = (Y1, Y2, ...., Y1309), o p que queremos encontrar pode ser estimado da seguinte forma:
-p^ = S/n ~ N(p,p(1-p)/n), em que S = quantidade de sobreviventes na amostra e n é o tamanho da amostra.
+p_est = S/n ~ N(p,p(1-p)/n), em que S = quantidade de sobreviventes na amostra e n é o tamanho da amostra.
 
-Logo, p^ = 500/1309 = 0,381971 (Estimativa Pontual)
+```{r}
+p_est<- table(df$survived)[2]/nrow(df)
+
+sd <- sqrt(p_est*(1-p_est)/nrow(df))
+
+LI <- p_est - qnorm(0.975)*sd
+LS <- p_est + qnorm(0.975)*sd
+
+```
+
+Logo, p_est = 500/1309 = 0,381971 (Estimativa Pontual). Adotando o grau de confiança de 95%, temos o intervalo de confiança IC = [LI;LS] = [;]  
+
+    2. Verificação das diferenças na taxa de sobrevivência nas variáveis explicativas.
+
+2.1 **Sexo**
 
 
 
