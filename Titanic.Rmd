@@ -31,7 +31,7 @@ Pela Análise da Descritiva, percebemos que a taxa de mulheres que sobreviveram 
 
 Em contrapartida, as variáveis **sibsp e parch não parecem** contribuir para entendermos melhor a variável resposta porque a maioria de seus valores é 0. Através da **age**, percebemos que as **crianças e jovens** tiveram **maior** taxa de sobrevivência, mas esta variável apresenta muitos valores faltantes (mais de 20% da base), o que compromete sua utilização em alguns modelos. Quanto à **fare**, vemos que os passageiros que pagaram mais caro nas passagens também tiveram maior taxa de sobrevivência, mas esta variável está fortemente associada com a variável **pclass**. Apresentaremos algumas possíveis formas de contornar os problemas das variáveis mencionadas neste parágrafo.  
 
-No tocante à Inferência Estatística, construímos o intervalo [0,35;0,40] com grau de confiança de 95% para a proporção de passageiros sobreviventes. Considerando que este intervalo não contém  os valores informados no site da Wikipédia (os valores lá apresentados estão entre [0,2648;0,3525]), podemos supor que os tripulantes tiveram menos chance de sobrevivência, pois só consideramos os passageiros neste trabalho. Outra possibilidade é que a os poucos passageiros que não fizem parte da amostra também fizeram com que a porporção de sobreviventes diminuísse.
+No tocante à Inferência Estatística, construímos o intervalo [0.3556502;0.4082917] com grau de confiança de 95% para a proporção de passageiros sobreviventes. Considerando que este intervalo não contém  os valores informados no site da Wikipédia (os valores lá apresentados estão entre [0,2648;0,3525]), podemos afirmar que a proporção de sobreviência é maior que a informada no site. As possíveis causas para isto ter ocorrido é que os tripulantes tiveram menos chance de sobrevivência, o que diminuiu a proporção de sobreviventes total (nossa base só tem informações dos passageiros). Outra possibilidade é que os poucos passageiros que não fizem parte da amostra também fizeram com que a porporção de sobreviventes diminuísse.
 
 Por fim, foi apresentado um modelo de regressão logística, o qual utilizou as variáveis xpto e que apresentou uma acurácia de 75%, um modelo de KNN, o qual mostrou uma acurácia de 70% quando escolhido o hiperparâmetro de 5 vizinhos e também uma árvore de decisão, que apresentou uma acurácia de 90%, sendo "vitorioso" o modelo ypto. Cabe ressaltar, podemos melhorar os modelos fazendo outros ajustes nas variáveis e, também, substituindo a Árvore de Decisão (Decision Tree) por uma Random Forest, pois esta é geralmente melhor. 
 
@@ -358,7 +358,7 @@ Nesta seção, apresentaremos uma estimativa pontual e um intervalo de confianç
 
     1. Estimação Pontual e Intervlar para a variável resposta **survived**
 
-Seja Y uma variável aleatória que representa a sobrevivência de um passageiro, Y poderia assumir 2 valores: 1 (sucesso) se o passageiro sobreviveu e 0 (fracasso) em caso contrário. Neste caso, estaríamos interessados em descobir qual é a probabilidade de sucesso(p). Então Y ~ Bernoulli(p), sendo p o valor do parâmetro que queremos obter(desconhecido).
+Seja Y uma variável aleatória que representa a sobrevivência de um passageiro, Y pode assumir 2 valores: 1 (sucesso) se o passageiro sobreviveu ao acidente e 0 (fracasso) em caso contrário. Neste caso, estaríamos interessados em descobir qual é a probabilidade de sucesso(p). Então Y ~ Bernoulli(p), sendo p o valor do parâmetro que queremos obter.
 
 Assim, supondo que uma sucessão (Yn) seja independente e identicamente distribuída, teríamos que S = Y1 + Y2 + ... Yn teria uma distribuição Binomial (S ~ Bin(n,p)). Além disso, considerando que a n seja grande, podemos usar o TLC (Teorema do Limite Central) e aproximar a distribuição S por uma Normal com média np e variância np(1-p).
 
@@ -375,7 +375,7 @@ LS <- p_est + qnorm(0.975)*sd
 
 ```
 
-Logo, p_est = 500/1309 = 0,381971 (Estimativa Pontual). Adotando o grau de confiança de 95%, temos o intervalo de confiança IC = [LI;LS] = [;]  
+Logo, p_est = 500/1309 = 0,381971 (Estimativa Pontual). Adotando o grau de confiança de 95%, temos o intervalo de confiança IC = [LI;LS] = [0.3556502;0.4082917]  
 
     2. Verificação das diferenças na taxa de sobrevivência nas variáveis explicativas.
 
