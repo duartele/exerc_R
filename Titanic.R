@@ -312,3 +312,11 @@ do_mau<-function(sibsp=0, parch=0){
 }
 
 df["sozinho"]<-sapply(df$sibsp+df$parch,FUN=do_mau)
+
+p_est<- table(df$survived)[2]/nrow(df)
+
+sd <- sqrt(p_est*(1-p_est)/nrow(df))
+
+LI <- p_est - qnorm(0.975)*sd
+LS <- p_est + qnorm(0.975)*sd
+
