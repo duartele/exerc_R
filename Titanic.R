@@ -320,3 +320,16 @@ sd <- sqrt(p_est*(1-p_est)/nrow(df))
 LI <- p_est - qnorm(0.975)*sd
 LS <- p_est + qnorm(0.975)*sd
 
+table(df$survived,df$sex)[2,2]/table(df$sex)[2]
+table(df$sex)[2]
+
+sd <- sqrt(p_est*(1-p_est)/nrow(df))
+
+LI <- p_est - qnorm(0.975)*sd
+LS <- p_est + qnorm(0.975)*sd
+
+p_xx<-table(df$survived,df$sex)[2,1]/table(df$sex)[1]
+p_xy<-table(df$survived,df$sex)[2,2]/table(df$sex)[2]  
+
+se <- sqrt(p_xx*(1-p_xx)/table(df$sex)[1] + p_xy*(1-p_xy)/table(df$sex)[1]) 
+p_xx-p_xy+c(-1,1)*qnorm(0.975)*se
