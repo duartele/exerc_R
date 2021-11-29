@@ -31,7 +31,7 @@ Pela Análise da Descritiva, percebemos que a taxa de mulheres que sobreviveram 
 
 Em contrapartida, as variáveis **sibsp e parch não parecem** contribuir para entendermos melhor a variável resposta porque a maioria de seus valores é 0. Através da **age**, percebemos que as **crianças e jovens** tiveram **maior** taxa de sobrevivência, mas esta variável apresenta muitos valores faltantes (mais de 20% da base), o que compromete sua utilização em alguns modelos. Quanto à **fare**, vemos que os passageiros que pagaram mais caro nas passagens também tiveram maior taxa de sobrevivência, mas esta variável está fortemente associada com a variável **pclass**. Apresentaremos algumas possíveis formas de contornar os problemas das variáveis mencionadas neste parágrafo.  
 
-No tocante à Inferência Estatística, construímos o intervalo [0.3556502;0.4082917] com grau de confiança de 95% para a proporção de passageiros sobreviventes. Considerando que este intervalo não contém  os valores informados no site da Wikipédia (os valores lá apresentados estão entre [0,2648;0,3525]), podemos afirmar que a proporção de sobreviência é maior que a informada no site. As possíveis causas para isto ter ocorrido é que os tripulantes tiveram menos chance de sobrevivência, o que diminuiu a proporção de sobreviventes total (nossa base só tem informações dos passageiros). Outra possibilidade é que os poucos passageiros que não fizem parte da amostra também fizeram com que a porporção de sobreviventes diminuísse.
+No tocante à Inferência Estatística, construímos o intervalo [0.3556502;0.4082917] com grau de confiança de 95% para a proporção de passageiros sobreviventes.
 
 Por fim, foi apresentado um modelo de regressão logística, o qual utilizou as variáveis xpto e que apresentou uma acurácia de 75%, um modelo de KNN, o qual mostrou uma acurácia de 70% quando escolhido o hiperparâmetro de 5 vizinhos e também uma árvore de decisão, que apresentou uma acurácia de 90%, sendo "vitorioso" o modelo ypto. Cabe ressaltar, podemos melhorar os modelos fazendo outros ajustes nas variáveis e, também, substituindo a Árvore de Decisão (Decision Tree) por uma Random Forest, pois esta é geralmente melhor. 
 
@@ -358,30 +358,53 @@ Nesta seção, apresentaremos uma estimativa pontual e um intervalo de confianç
 
     1. Estimação Pontual e Intervlar para a variável resposta **survived**
 
-Seja Y uma variável aleatória que representa a sobrevivência de um passageiro, Y pode assumir 2 valores: 1 (sucesso) se o passageiro sobreviveu ao acidente e 0 (fracasso) em caso contrário. Neste caso, estaríamos interessados em descobir qual é a probabilidade de sucesso(p). Então Y ~ Bernoulli(p), sendo p o valor do parâmetro que queremos obter.
+Seja Y uma variável aleatória que representa a sobrevivência de um passageiro, Y pode assumir 2 valores: 1 (sucesso) se o passageiro sobreviveu ao acidente e 0 (fracasso) em caso contrário. Neste caso, estaríamos interessados em descobir qual é a proporção de sucessos(p). Então Y ~ Bernoulli(p), sendo p o valor do parâmetro que queremos obter.
 
-Assim, supondo que uma sucessão (Yn) seja independente e identicamente distribuída, teríamos que S = Y1 + Y2 + ... Yn teria uma distribuição Binomial (S ~ Bin(n,p)). Além disso, considerando que a n seja grande, podemos usar o TLC (Teorema do Limite Central) e aproximar a distribuição S por uma Normal com média np e variância np(1-p).
+Assim, supondo que uma sucessão (Yn) seja independente e identicamente distribuída, teríamos que S = Y1 + Y2 + ... Yn teria uma distribuição Binomial (S ~ Bin(n,p)). Além disso, considerando que a n é grande, podemos usar o TLC (Teorema do Limite Central) e aproximar a distribuição S por uma Normal com média np e variância np(1-p).
 
 Deste modo, como nossa amostra y = (y1, y2, ...., y1309) é uma realização particular de Y = (Y1, Y2, ...., Y1309), o p que queremos encontrar pode ser estimado da seguinte forma:
 p_est = S/n ~ N(p,p(1-p)/n), em que S = quantidade de sobreviventes na amostra e n é o tamanho da amostra.
 
 ```{r}
 p_est<- table(df$survived)[2]/nrow(df)
-
 sd <- sqrt(p_est*(1-p_est)/nrow(df))
-
 LI <- p_est - qnorm(0.975)*sd
 LS <- p_est + qnorm(0.975)*sd
 
+#Forma utilizando funções do R: binom.test
+binom.test(table(df$survived)[2],nrow(df))
+#Diferença bem pequena. Aqui é usada a distribuição Binomial, enquanto que o intervalo acima foi obtido pela normal 
 ```
 
-Logo, p_est = 500/1309 = 0,381971 (Estimativa Pontual). Adotando o grau de confiança de 95%, temos o intervalo de confiança IC = [LI;LS] = [0.3556502;0.4082917]  
+Logo, p_est = 500/1309 = 0,381971 (Estimativa Pontual). Adotando o grau de confiança de 95%, temos o intervalo de confiança IC = [LI;LS] = [0.3556502;0.4082917].  
+
+De acordo com o site da Wikipédia, a embarcação possuiu 2224 pessoas (passageiros e tripulantes) e o número total de mortes estimado está entre 1490 e 1635, ou seja, a porporção de sobreviventes estaria entre [0.2648,0.3300]. Considerando que este intervalo que calculamos não contém  os valores informados nesse site, podemos afirmar que a proporção de sobreviência para os passageiros é maior que a informada no site. As possíveis causas para essa discrepância é que os tripulantes tiveram menor proporção de sobrevivência, o que diminuiu a proporção de sobreviventes total. Outra possibilidade é que os poucos passageiros que não fizem parte da amostra também fizeram com que a porporção de sobreviventes diminuísse.
 
     2. Verificação das diferenças na taxa de sobrevivência nas variáveis explicativas.
 
-2.1 **Sexo**
+    2.1 **Sexo**
 
+Vimos que as mulheres pareciam ter uma proporção de sobrevivência superior à dos homens. Para verificar nossa assertiva, podemos fazer um teste de hipóteses, em que H0: p_mulheres = p_homens vs H1: p_mulheres != p_homens. Outra forma de verificar isso seria construir um intervalo de confiança para a diferença das proporções e se esse intervalo contiver o valor zero, significa que não podemos rejeitar H0, ou seja, não teríamos evidência de que a diferença das estimativas é significativa. Utilizaremos neste (e em todos os outros) um nível de significância de 5% (teste de hipóteses) e 95% de confiança (intervalos de confiança).
 
+```{r}
+p_xx<-table(df$survived,df$sex)[2,1]/table(df$sex)[1]
+p_xy<-table(df$survived,df$sex)[2,2]/table(df$sex)[2]  
+
+se <- sqrt(p_xx*(1-p_xx)/table(df$sex)[1] + p_xy*(1-p_xy)/table(df$sex)[2]) 
+p_xx-p_xy+c(-1,1)*qnorm(0.975)*se
+
+#Outra forma (utilizando uma função do R):
+#prop.test
+prop.test(x=c(table(df$survived,df$sex)[2,1],table(df$survived,df$sex)[2,2]),n=c(table(df$sex)[1],table(df$sex)[2]))
+
+#Podemos testar, também, se p_xx é maior que p_xy 
+prop.test(x=c(table(df$survived,df$sex)[2,1],table(df$survived,df$sex)[2,2]),n=c(table(df$sex)[1],table(df$sex)[2]), alternative = "greater")
+
+```
+
+Obtemos, portanto o intervalo de confiança (0.4881260;0.5848405). Como não contem o valor zero, rejeitamos a hipótese nula (proporções de sobrevivência iguais). Além, disso, fica evidente que a proporção de sobrevivência das mulheres é maior que a dos homens.
+
+    2.2 **Sexo**
 
 ## Modelagem.
 ## Conclusões.
