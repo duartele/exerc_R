@@ -4,23 +4,28 @@ a<-sum(birthwt$bwt)
 b<-sum(birthwt$bwt^2)
 m<-a/189
 var<-(b-189*(m^2))/188
-t1<-qt(0.95,188)
+t1<-qt(0.975,188)
 m + c(-1,1)*t1*sqrt((var)/189)      
 
 ?t.test
-t.test(x=birthwt$bwt, conf.level = 0.9)
+t.test(x=birthwt$bwt, conf.level = 0.95)
 
+#IC para variância - primeiro verificar se é normal a distr - Shapiro
 #peso no processo de empacotamento de 1kg de arroz
-peso<-var(c(1.03,1.1,0.99,0.98,1.05,1.02,0.92,1.08))
-qchisq(0.025,df=7)
-qchisq(0.975,df=7)
+peso<-c(1.03,1.1,0.99,0.98,1.05,1.02,0.92,1.08)
+shapiro.test(peso) #p-valor alto - então é!
+s2_peso<-var(peso)
+qchisq(0.025,df=7) #X2_alpha/2 - LS
+qchisq(0.975,df=7) #X2_1-alpha/2 - LI
+
+IC <- c(7*s2_peso/qchisq(0.975,df=7), 7*s2_peso/qchisq(0.025,df=7))
 
 #Teste de Normalidade
 #Teste de Shapiro-Wilk -> shapiro.test
 #biblioteca nortest -> lillie.test
 
-shapiro.test(birthwt$bwt[birthwt$smoke == 0])
-shapiro.test(birthwt$bwt[birthwt$smoke == 1])
+shapiro.test(birthwt$bwt[birthwt$smoke == 0]) #OK!
+shapiro.test(birthwt$bwt[birthwt$smoke == 1]) #OK!
 
 library(nortest)
 lillie.test(birthwt$bwt[birthwt$smoke == 0])
