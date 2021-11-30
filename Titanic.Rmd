@@ -25,13 +25,13 @@ Com efeito, o **RMS Titanic** foi um navio luxuoso construído para ser 'inafund
 
 Considerando que a base que temos acesso possui informações sobre `r nrow(df)` passageiros, ou seja, praticamente todos os existentes (2224 - 688 tripulantes ~= base), as medidas calculadas seriam populacionais e não amostrais, o que inviabilizaria fazer inferências ou construir modelos. Então, todo o exposto será uma abstração para focarmos nas técnicas computacionais e estatísticas.
 
-Dito isto, consideraremos que estamos interessados em prever se um passageiro sobreviveu ao acidente, tendo posse de algumas informações sobre ele, ou seja, a variável resposta será "survived", caracterizada por 1 se o passageiro sobreviveu ao acidente ou 0 em caso contrário. A taxa de sobreviventes na base foi de `r round(table(df$survived)[2]/nrow(df)*100,2)`%.
+Dito isto, consideraremos que estamos interessados em prever se um passageiro sobreviveu ao acidente, tendo posse de algumas informações sobre ele, ou seja, a variável resposta será **"survived"**, caracterizada por 1 se o passageiro sobreviveu ao acidente ou 0 em caso contrário. A **proporção de sobreviventes** na amostra foi de **`r round(table(df$survived)[2]/nrow(df)*100,2)`%**.
 
-Pela Análise da Descritiva, percebemos que a taxa de mulheres que sobreviveram ao acidente foi de 72,75%, enquanto que a dos homens foi apenas de 19,10%. Também percebemos que as pessoas que viajaram na primeira classe tiveram uma maior taxa de sobrevivência (de 61,92% contra 25,53% dos que viajaram na terceira classe). Pessoas que embarcaram no porto "C" (Cherbourg) também possuíram uma taxa maior de sobrevivência (55,56% contra 33,56% nos outros portos).
+Pela Análise da Descritiva, percebemos que a proporção de mulheres que sobreviveram ao acidente foi **maior** que a dos homens (**72,75%** contra **19,10%**). Também percebemos que as pessoas que viajaram na primeira classe tiveram uma proporção **maior** de sobrevivência (de **61,92%** contra **25,53%** dos que viajaram na terceira classe). Pessoas que embarcaram no porto "C" (Cherbourg) também possuíram uma proporção **maior** de sobrevivência (**55,56%** contra **33,56%** nos outros portos). Através da idade, percebemos que as **crianças e jovens** tiveram uma proporção **maior** de sobrevivência. Quanto à **fare**, vemos que os passageiros que pagaram mais caro nas passagens também tiveram uma proporção maior de sobrevivência.
 
-Em contrapartida, as variáveis **sibsp e parch não parecem** contribuir para entendermos melhor a variável resposta porque a maioria de seus valores é 0. Através da **age**, percebemos que as **crianças e jovens** tiveram **maior** taxa de sobrevivência, mas esta variável apresenta muitos valores faltantes (mais de 20% da base), o que compromete sua utilização em alguns modelos. Quanto à **fare**, vemos que os passageiros que pagaram mais caro nas passagens também tiveram maior taxa de sobrevivência, mas esta variável está fortemente associada com a variável **pclass**. Apresentaremos algumas possíveis formas de contornar os problemas das variáveis mencionadas neste parágrafo.  
+Em contrapartida, as variáveis sibsp e parch **não parecem** contribuir para entendermos melhor a variável resposta porque a maioria de seus valores é 0. Além disso, a variável idade apresenta muitos valores faltantes. Precisamos verificar, ainda, se as variáveis associadas. Apresentaremos algumas possíveis formas de contornar os problemas das variáveis mencionadas neste parágrafo.  
 
-No tocante à Inferência Estatística, construímos o intervalo [0.3556502;0.4082917] com grau de confiança de 95% para a proporção de passageiros sobreviventes.
+No tocante à Inferência Estatística, construímos o intervalo [0.3557 ; 0.4083] com grau de confiança de 95% para a proporção de passageiros sobreviventes. Vimos ainda quais diferenças encontradas na Análise Descritiva são significativas.
 
 Por fim, foi apresentado um modelo de regressão logística, o qual utilizou as variáveis xpto e que apresentou uma acurácia de 75%, um modelo de KNN, o qual mostrou uma acurácia de 70% quando escolhido o hiperparâmetro de 5 vizinhos e também uma árvore de decisão, que apresentou uma acurácia de 90%, sendo "vitorioso" o modelo ypto. Cabe ressaltar, podemos melhorar os modelos fazendo outros ajustes nas variáveis e, também, substituindo a Árvore de Decisão (Decision Tree) por uma Random Forest, pois esta é geralmente melhor. 
 
@@ -43,9 +43,9 @@ Por fim, foi apresentado um modelo de regressão logística, o qual utilizou as 
 
 + **pclass**: Classe do Bilhete. Possíveis valores: 1(primeira), 2(segunda) ou 3 (terceira);
 `
-+ **sex**: Gênero do passageiro. Possíveis valores: female (feminino) ou male(masculino);
++ **sex**: Gênero do passageiro. Possíveis valores: female (feminino) ou male (masculino);
 
-+ **age**: Idade em anos. Possíveis valores: Para crianças menores de um ano, a idade pode assumir um valor contínuo (no intervalo  ]0,1[). Para mais velhos que isso, usa-se o valores discretos  {1,2,3...}. Quando tem o valor da forma xx.5 é porque a idade da pessoa foi estimada.
++ **age**: Idade (em anos). Possíveis valores: Para crianças menores de um ano, a idade pode assumir um valor contínuo (no intervalo  ]0,1[). Para mais velhos que isso, usa-se o valores discretos  {1,2,3...}. Quando tem o valor da forma xx.5 é porque a idade da pessoa foi estimada.
 
 + **sibsp**: Número de irmãos e/ou esposos a bordo. Possíveis valores: {0,1,2,3...};
 
@@ -99,7 +99,7 @@ barplot(table(df$survived,df$sex), xlab="Sobrevivência por Sexo", ylab="Frequê
         legend.text = TRUE, beside=FALSE)
 ```
 
-Pela apreciação desse gráfico, percebe-se que a taxa de sobrevivência das mulheres é **bem superior** a dos homens (72,75% contra 19,09%), indicando assim que a variável sexo pode ajudar a explicar a sobrevivência de um passageiro.
+Pela apreciação desse gráfico, percebe-se que a porporção de sobrevivência das mulheres é **bem superior** a dos homens (72,75% contra 19,09%), indicando assim que a variável sexo pode ajudar a explicar a sobrevivência de um passageiro.
 
 **Embarked** (C - Cherbourg, Q - Queenstown ou S - Southampton)
 
@@ -118,7 +118,7 @@ barplot(table(df$survived,df$embarked), xlab="Sobrevivência por Porto de Embarq
         legend.text = TRUE, beside=TRUE)
 ```
 
-Pela apreciação do gráfico, percebemos que apenas no porto C a taxa de sobreviventes foi **maior** que a de falecidos. Além disso, temos que a taxa de sobreviventes no porto Q está **próxima** da do S.
+Pela apreciação do gráfico, percebemos que apenas no porto C a proporção de sobreviventes foi **maior** que a de falecidos. Além disso, temos que a proporção de sobreviventes no porto Q está **próxima** da do S.
 
     2.2 Variáveis Qualitativas Ordinais
 
@@ -139,7 +139,7 @@ barplot(table(df$survived,df$pclass), xlab="Sobrevivência por Classe de Embarqu
         legend.text = TRUE, beside=TRUE)
 ```
 
-Temos a sugestão de que quanto pior é a classe menor é a taxa de sobreviência de um passageiro, sendo que houve mais sobreviventes na primeira classe que falecidos.
+Temos a sugestão de que quanto pior é a classe menor é a proporção de sobreviventes, sendo que houve mais sobreviventes na primeira classe que falecidos.
 
     3. Variáveis Quantitativas
 
@@ -161,7 +161,7 @@ barplot(table(df$survived,df$sibsp), xlab="Sobrevivência por número de irmãos
         legend.text = TRUE, beside=TRUE)
 ```
 
-Quando olhamos as taxa de sobrevivência, não conseguimos ver uma associação linear. De fato, os que embarcaram sozinhos tiveram menor taxa de sobrevivência dos que embarcaram com 1 ou 2 irmãos, porém com 3 ou mais irmãos a taxa de sobrevivência já fica bem baixa. Fazer um agrupamento em 3 conglomerados ("não possui", "possui 1 ou 2" e "possui mais de 2") pode até dar uma contribuição na modelagem, mas o resultado não seria interpretativo. Então, talvez seja melhor não utilizarmos esta variável.
+Quando olhamos as proporções de sobreviventes, não conseguimos ver uma associação linear. De fato, os que embarcaram sozinhos tiveram menor taxa de sobrevivência dos que embarcaram com 1 ou 2 irmãos, porém com 3 ou mais irmãos a taxa de sobrevivência já fica bem baixa. Fazer um agrupamento em 3 conglomerados ("não possui", "possui 1 ou 2" e "possui mais de 2") pode até dar uma contribuição na modelagem, mas o resultado não seria interpretativo. Então, talvez seja melhor não utilizarmos esta variável.
 
 **Parch** (Número de pais ou filhos a bordo)
 
@@ -178,7 +178,7 @@ barplot(table(df$survived,df$parch), xlab="Sobrevivência por número de pais ou
         legend.text = TRUE, beside=TRUE)
 ```
 
-Aqui parece que ter embarcado com filhos(ou pais) aumenta a taxa de sobrevivência. Porém, como há poucas observações com valores diferentes de 0, talvez teríamos que fazer uma dicotomia ("não possui" contra "possui").  
+Aqui parece que ter embarcado com filhos (ou pais) aumentou a proporção de sobreviventes. Porém, como há poucas observações com valores diferentes de 0, talvez teríamos que fazer uma dicotomia ("não possui" contra "possui").  
 
     3.2 Variáveis Quantitativas Contínuas
 
@@ -205,7 +205,7 @@ O gráfico abaixo serve para compararmos as distribuições dos passageiros que 
 boxplot(df$age~df$survived, ylab = "Idade", xlab="Sobrevivência",main="")
 ```
 
-Porém, observando os histogramas com a separação dos sobreviventes, percebe-se que crianças e adolescentes tiveram maiores taxas de sobrevivência.
+Porém, observando os histogramas com a separação dos sobreviventes, percebe-se que crianças e adolescentes tiveram uma proporção maior de sobreviventes.
 
 ```{r}
 mor<-df$age[df$survived==0]
@@ -216,7 +216,7 @@ hist(mor, freq = FALSE, breaks = 12, xlab = "Falecidos", main="")
 hist(viv, freq = FALSE, col = "lightblue", breaks = 12, xlab = "Sobreviventes", main="")
 ```
 
-Por fim, temos que esta variável apresenta 20.09% de seus valores faltantes, quantia esta significante. Além disso, analisando sua taxa de sobrevivência, vemos que é mais baixa que a dos outros adultos (27,76% contra 38,77%).
+Por fim, temos que esta variável apresenta 20.09% de seus valores faltantes, quantia esta expressiva. Além disso, analisando sua proporção de sobreviventes, vemos que é mais baixa que a dos outros adultos (**27,76%** contra **38,77%**).
 
 Como algumas técnicas de modelagem não permitem a utilização de "missings", podemos contornar esse problema de algumas formas:
 
@@ -254,7 +254,7 @@ barplot(table(df$survived,df$faixa_etaria), xlab="Sobrevivência por Faixa Etár
         legend.text = TRUE, beside=FALSE)
 ```
 
-Como dito, as crianças possuem maior taxa de sobreviência, seguido dos adultos que sabemos a idade e os que não sabemos possuem menor taxa da sobrevivência.
+Como dito, as crianças possuem uma maior proporção de sobreviventes, seguido dos adultos que sabemos a idade e os que não sabemos possuem uma proporção de sobreviventes.
 
 **Fare**
 
@@ -268,13 +268,13 @@ Percebemos que a variável **fare** possui valores mais localizados à esquerda 
 boxplot(df$fare~df$survived, ylab = "Valor da Tarifa", xlab="Sobrevivência",main="")
 ```
 
-Mesmo com os valores extremos distorcendo a escala, percebe-se que os que pagaram tarifas mais altas tiveram maior taxa de sobrevivência. Porém, será que este resultado  não está melhor descrito pela variável **pclass**? Para respondermos essas e outros questionamentos, faremos uma Análise Descritiva Multivariada.
+Mesmo com os valores extremos distorcendo a escala, percebe-se que os que pagaram tarifas mais altas tiveram uma proporção maior de sobreviventes. Porém, será que este resultado  não está melhor descrito pela variável **pclass**? Para respondermos essas e outros questionamentos, faremos uma Análise Descritiva Multivariada.
 
 ## Análise Descritiva Multivariada.
 
-Antes de começar, precisamos ressaltar que estamos no primeiro semestre, sem termos feito ainda Análise Multivariada (nem vimos técnicas de modelagem ainda). Então os procedimentos aplicados aqui foram guiados por intuições e podem nem ser os utilizados por profissionais.
+Antes de começarmos, precisamos ressaltar que estamos no primeiro semestre, sem termos feito ainda Análise Multivariada (nem vimos técnicas de modelagem ainda). Então os procedimentos aplicados aqui foram guiados por intuições e podem não ser os utilizados por profissionais.
 
-Nas seções anteriores, vimos que as pessoas que estavam na primeira classe e as que embarcaram no Porto C tiveram maiores taxas de sobrevivência. Será que há associação entre essas duas variáveis?
+Nas seções anteriores, vimos que as pessoas que estavam na primeira classe e as que embarcaram no Porto C tiveram maiores proporções de sobreviventes. Será que há associação entre essas duas variáveis?
 
 ```{r, echo=TRUE}
 layout(matrix(c(1,2),ncol=2))
@@ -286,7 +286,7 @@ barplot(table(df$pclass, df$embarked), xlab="Embarque por Classe", ylab="",
 
 ```
 
-Pela apreciação desses gráficos, percebe-se que grande parte dos que embarcaram no porto Q estavam na terceira classe, mas os que embarcaram no S se espalharam pelas outras classes, lembrando que a taxa de sobrevicência do S e Q são próximas. Os que embarcaram no porto C, que tiveram maior taxa de sobrevivência, foram para as três classes, embora haja predominância na primeira. Portanto, há uma associação entre as variáveis, mas são informações que se complementam e não redundantes para a modelagem.  
+Pela apreciação desses gráficos, percebe-se que grande parte dos que embarcaram no porto Q estavam na terceira classe, mas os que embarcaram no S se espalharam pelas outras classes, lembrando que a taxa de sobrevicência do S e Q são próximas. Os que embarcaram no porto C, que tiveram uma proporção maior de sobreviventes, foram para as três classes, embora haja predominância na primeira. Portanto, mesmo havendo alguma  associação entre as variáveis, não parecem que essas variáveis são redundantes para a modelagem.  
 
 Seguindo a lógica, supomos que os passageiros que pagaram as maiores tarifas foram para as primeiras classes, do contrário, haveria conflito de informações. Em todo o caso, precisamos averiguar se isto de fato ocorreu.
 
@@ -296,7 +296,7 @@ boxplot(df$fare~df$pclass, ylab = "Valor da Tarifa", xlab="Classe",main="")
 
 Verifica-se que, em geral, os que pagaram mais estão na primeira classe, mas há alguma confusão entre as classes nas tarifas mais baixas. Há observações, inclusive, que parece haver incoerências, por exemplo: por que 8 passageiros da terceira classe pagaram quase 60 valores, sendo que mais de 50 passageiros pagaram menos da metade e estavam na primeira classe?. Vale dizer, esses passageiros não possuíam esposas nem filhos a bordo.
 
-Quanto a essa última informação vem o questionamento: será que há alguma associação entre a classe que embarcou e as variáveis **sibsp** ou **parch**? Pelos que os gráficos abaixo indicam, não há uma associação alarmante.
+Quanto a essa última informação vem o questionamento: será que há alguma associação entre a classe que embarcou e as variáveis **sibsp** ou **parch**? Vejamos os gráficos abaixo:
 
 ```{r, echo=TRUE}
 layout(matrix(c(1,2),ncol=2))
@@ -314,15 +314,6 @@ barplot(table(df$pclass, df$parch), xlab="Número de Pais por Classe", ylab="",
         legend.text = TRUE, beside=FALSE)
 ```
 
-Outro questionamento interessante é a saber a associação entre a idade e a **parch**. Não deveria ter, por exemplos, crianças que embarcaram sozinhas. Para verificarmos isso, vamos observar o gráfico com essas variáveis. 
-
-```{r}
-boxplot(df$parch~df$faixa_etaria, ylab = "Némero de pais (ou filhos)", xlab="Faixa etária",main="")
-```
-
-Como era de se esperar, as crianças possuem ao menos um pai (salvo poucas exceções). E como a maioria dos valores de **parch** é zero, os outros agrupamentos (adultos com ou sem idade informada) ficaram concentrados nos valores zero.
-Por fim, qual é a associação linear entre **parch** e **sibsp**?
-
 Para responder essa pergunta, podemos observar a correlação entre essas variáveis (apenas 0,3736). Também podemos colocar as variáveis num gráfico de dispersão:
 
 ```{r, echo=TRUE}
@@ -331,7 +322,6 @@ abline(lm(df$sibsp~df$parch), col="red", lty=1, lwd=2)
 ```
 
 Como essas variáveis tentam identificar se o passageiro embarcou sozinho, que tal unirmos essas duas informações numa nova variável? Para fazer isso, conseidere o seguinte código:
-
 
 ```{r}
 sozinho<-function(a){
@@ -350,7 +340,15 @@ barplot(table(df$survived,df$sozinho), xlab="Sozinho(SIM=1)", ylab="Frequência"
         legend.text = TRUE, beside=TRUE)
 ```
 
-Pela observação do gráfico, percebemos que os passageiros que embarcaram sozinho tiveram uma **taxa menor** de sobrevivência. Então podemos considerar a utilização desta variável na modelagem (também podemos testar os outros agrupamentos propostos neste trabalho). Vale dizer, um dos propósitos da Análise Descritiva é a geração de "insights" e a construção de novas variáveis (ou agrupar existentes), técnica em inglês chamada de "Feature engineering".
+Pela observação do gráfico, percebemos que os passageiros que embarcaram sozinho tiveram uma **proporção menor** de sobreviventes. Então podemos considerar a utilização desta variável na modelagem (também podemos testar os outros agrupamentos propostos neste trabalho). Vale dizer, um dos propósitos da Análise Descritiva é a geração de "insights" e a construção de novas variáveis (ou agrupar existentes), técnica em inglês chamada de "Feature engineering".
+
+Outro questionamento interessante é a saber a associação entre a idade e a **parch**. Não deveria ter, por exemplos, crianças que embarcaram sozinhas. Para verificarmos isso, vamos observar o gráfico com essas variáveis. 
+
+```{r}
+boxplot(df$parch~df$faixa_etaria, ylab = "Némero de pais (ou filhos)", xlab="Faixa etária",main="")
+```
+
+Como era de se esperar, as crianças possuem ao menos um pai (salvo poucas exceções). E como a maioria dos valores de **parch** é zero, os outros agrupamentos (adultos com ou sem idade informada) ficaram concentrados nos valores zero.
 
 ## Inferência Estatística.
 
@@ -376,13 +374,24 @@ binom.test(table(df$survived)[2],nrow(df))
 #Diferença bem pequena. Aqui é usada a distribuição Binomial, enquanto que o intervalo acima foi obtido pela normal 
 ```
 
-Logo, p_est = 500/1309 = 0,381971 (Estimativa Pontual). Adotando o grau de confiança de 95%, temos o intervalo de confiança IC = [LI;LS] = [0.3556502;0.4082917].  
+Logo, p_est = 500/1309 = 0,381971 (Estimativa Pontual). Adotando o grau de confiança de 95%, temos o intervalo de confiança IC = [LI;LS] = [0.3557 ; 0.4083].  
 
-De acordo com o site da Wikipédia, a embarcação possuiu 2224 pessoas (passageiros e tripulantes) e o número total de mortes estimado está entre 1490 e 1635, ou seja, a porporção de sobreviventes estaria entre [0.2648,0.3300]. Considerando que este intervalo que calculamos não contém  os valores informados nesse site, podemos afirmar que a proporção de sobreviência para os passageiros é maior que a informada no site. As possíveis causas para essa discrepância é que os tripulantes tiveram menor proporção de sobrevivência, o que diminuiu a proporção de sobreviventes total. Outra possibilidade é que os poucos passageiros que não fizem parte da amostra também fizeram com que a porporção de sobreviventes diminuísse.
+De acordo com o site da Wikipédia, a embarcação possuiu 2224 pessoas (passageiros e tripulantes) e o número total de mortes estimado está entre 1490 e 1635, ou seja, a porporção de sobreviventes estaria entre [0.2648 ; 0.3300]. Percebe-se, assim, que a interseção dos intervalos é vazia.
+
+Diante do exposto, podemos formular e testar as seguintes hipóteses: H0:a proporção de sobreviventes é de 0.33 (máximo do intervalo da Wikipédia) vs H1: a proporção de sobreviventes é superior a 0.33? Este teste é unilateral à direita (H0: p = 0.33 vs H1: p > 0.33). Vale dizer, poderíamos fazer um teste bilateral (H0: p = 0.33 vs H1: p != 0.33), mas neste caso poderia ser respodido pelo próprio intervalo de confiança que construímos e, assim, rejeitaríamos H0 ao nível de significância de 5%.
+
+```{r}
+prop.test(x=500,n=1309,p=0.33,alternative = "greater",conf.level = 0.95)
+
+```
+
+Portanto, considerando um nível de significância de 5%, rejetimanos H0, ou seja, há evidências significativas que a proporção de sobreviventes não é de 33%.
+
+Cabe ressaltar, porém, que os valores apresentados no site não se referem apenas aos passageiros, mas também aos tripulantes. Então, pode ser que a proporção de sobreviventes dos tripulantes foi menor, o que diminuiu a proporção de sobreviventes total. Outra possibilidade é que os poucos passageiros que não fizem parte da amostra também fizeram com que a porporção de sobreviventes real diminuísse.
 
     2. Verificação das diferenças na taxa de sobrevivência nas variáveis explicativas.
 
-    2.1 **Sexo**
+    2.1 **Sexo - sex**
 
 Vimos que as mulheres pareciam ter uma proporção de sobrevivência superior à dos homens. Para verificar nossa assertiva, podemos fazer um teste de hipóteses, em que H0: p_mulheres = p_homens vs H1: p_mulheres != p_homens. Outra forma de verificar isso seria construir um intervalo de confiança para a diferença das proporções e se esse intervalo contiver o valor zero, significa que não podemos rejeitar H0, ou seja, não teríamos evidência de que a diferença das estimativas é significativa. Utilizaremos neste (e em todos os outros) um nível de significância de 5% (teste de hipóteses) e 95% de confiança (intervalos de confiança).
 
@@ -402,9 +411,33 @@ prop.test(x=c(table(df$survived,df$sex)[2,1],table(df$survived,df$sex)[2,2]),n=c
 
 ```
 
-Obtemos, portanto o intervalo de confiança (0.4881260;0.5848405). Como não contem o valor zero, rejeitamos a hipótese nula (proporções de sobrevivência iguais). Além, disso, fica evidente que a proporção de sobrevivência das mulheres é maior que a dos homens.
+Obtemos, portanto o intervalo de confiança (0.4881 ; 0.5848). Como não contem o valor zero, rejeitamos a hipótese nula (proporções de sobrevivência iguais). Além, disso, fica evidente que a proporção de sobrevivência das mulheres **é maior** que a dos homens.
 
-    2.2 **Sexo**
+    2.2 **Classe que Embarcou - pclass**
+    
+Também percebemos que as pessoas que viajaram na primeira classe tiveram uma proporção **maior** de sobrevivência (de **61,92%** contra **25,53%** dos que viajaram na terceira classe). Podemos fazer o teste: H0: p1=p2=p3 vs H1: há alguma diferença entre as proporções. Porém, é mais interessante fazer dois testes: primeiro verificar se p1=p2 e depois verificar se p2=p3.
+
+```{r}
+#p_1 é maior que p_2? 
+prop.test(x=c(table(df$survived,df$pclass)[2,1],table(df$survived,df$pclass)[2,2]),n=c(table(df$pclass)[1],table(df$pclass)[2]), alternative = "greater")
+```
+
+Portanto, ao nível de significância de 5%, rejeita-se H0, ou seja, rejeitamos que as proporções de sobreviventes nas classes 1 e 2 sejam iguais.
+
+```{r}
+#p_2 é maior que p_3? 
+prop.test(x=c(table(df$survived,df$pclass)[2,2],table(df$survived,df$pclass)[2,3]),n=c(table(df$pclass)[2],table(df$pclass)[3]), alternative = "greater")
+```
+
+Portanto, ao nível de significância de 5%, rejeita-se H0, ou seja, rejeitamos que as proporções de sobreviventes nas classes 2 e 3 sejam iguais.
+
+    2.2 **Porto em que Embarcou - embarked**
+
+Pessoas que embarcaram no porto "C" (Cherbourg) também possuíram uma proporção **maior** de sobrevivência (**55,56%** contra **33,56%** nos outros portos). Vale dizer, o tamanho expressivo da amostra facilita a rejeição de H0 (observe os valores-p dos outros testes, quase todos foram praticamente zero). Aqui, porém, pode ser que não rejeitemos que as proporções dos outros portos sejam iguais.
+
+Através da idade, percebemos que as **crianças e jovens** tiveram uma proporção **maior** de sobrevivência. Quanto à **fare**, vemos que os passageiros que pagaram mais caro nas passagens também tiveram uma proporção maior de sobrevivência.
+
+Em contrapartida, as variáveis sibsp e parch **não parecem** contribuir para entendermos melhor a variável resposta porque a maioria de seus valores é 0. Além disso, a variável idade apresenta muitos valores faltantes. Precisamos verificar, ainda, se as variáveis associadas. Apresentaremos algumas possíveis formas de contornar os problemas das variáveis mencionadas neste parágrafo.  
 
 ## Modelagem.
 ## Conclusões.
