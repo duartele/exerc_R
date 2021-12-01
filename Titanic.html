@@ -504,7 +504,7 @@ prop.test(x=c(table(df$survived,df$sex)[2,1],table(df$survived,df$sex)[2,2]),n=c
 <p>Obtemos, portanto o intervalo de confiança (0.4881 ; 0.5848). Como não contem o valor zero, rejeitamos a hipótese nula (proporções de sobrevivência iguais). Além, disso, fica evidente que a proporção de sobrevivência das mulheres <strong>é maior</strong> que a dos homens.</p>
 <pre><code>2.2 **Classe que Embarcou - pclass**</code></pre>
 <p>Também percebemos que as pessoas que viajaram na primeira classe tiveram uma proporção <strong>maior</strong> de sobrevivência (de <strong>61,92%</strong> contra <strong>25,53%</strong> dos que viajaram na terceira classe). Podemos fazer o teste: H0: p1=p2=p3 vs H1: há alguma diferença entre as proporções. Porém, é mais interessante fazer dois testes: primeiro verificar se p1=p2 e depois verificar se p2=p3.</p>
-<pre class="r"><code>#p_1 é maior que p_2? 
+<pre class="r"><code>#H1: p_1 é maior que p_2? 
 prop.test(x=c(table(df$survived,df$pclass)[2,1],table(df$survived,df$pclass)[2,2]),n=c(table(df$pclass)[1],table(df$pclass)[2]), alternative = &quot;greater&quot;)</code></pre>
 <pre><code>## 
 ##  2-sample test for equality of proportions with continuity correction
@@ -518,7 +518,7 @@ prop.test(x=c(table(df$survived,df$pclass)[2,1],table(df$survived,df$pclass)[2,2
 ##    prop 1    prop 2 
 ## 0.6191950 0.4296029</code></pre>
 <p>Portanto, ao nível de significância de 5%, rejeita-se H0, ou seja, rejeitamos que as proporções de sobreviventes nas classes 1 e 2 sejam iguais.</p>
-<pre class="r"><code>#p_2 é maior que p_3? 
+<pre class="r"><code>#H1: p_2 é maior que p_3? 
 prop.test(x=c(table(df$survived,df$pclass)[2,2],table(df$survived,df$pclass)[2,3]),n=c(table(df$pclass)[2],table(df$pclass)[3]), alternative = &quot;greater&quot;)</code></pre>
 <pre><code>## 
 ##  2-sample test for equality of proportions with continuity correction
@@ -534,11 +534,77 @@ prop.test(x=c(table(df$survived,df$pclass)[2,2],table(df$survived,df$pclass)[2,3
 <p>Portanto, ao nível de significância de 5%, rejeita-se H0, ou seja, rejeitamos que as proporções de sobreviventes nas classes 2 e 3 sejam iguais.</p>
 <pre><code>2.2 **Porto em que Embarcou - embarked**</code></pre>
 <p>Pessoas que embarcaram no porto “C” (Cherbourg) também possuíram uma proporção <strong>maior</strong> de sobrevivência (<strong>55,56%</strong> contra <strong>33,56%</strong> nos outros portos). Vale dizer, o tamanho expressivo da amostra facilita a rejeição de H0 (observe os valores-p dos outros testes, quase todos foram praticamente zero). Aqui, porém, pode ser que não rejeitemos que as proporções dos outros portos sejam iguais.</p>
-<p>Através da idade, percebemos que as <strong>crianças e jovens</strong> tiveram uma proporção <strong>maior</strong> de sobrevivência. Quanto à <strong>fare</strong>, vemos que os passageiros que pagaram mais caro nas passagens também tiveram uma proporção maior de sobrevivência.</p>
-<p>Em contrapartida, as variáveis sibsp e parch <strong>não parecem</strong> contribuir para entendermos melhor a variável resposta porque a maioria de seus valores é 0. Além disso, a variável idade apresenta muitos valores faltantes. Precisamos verificar, ainda, se as variáveis associadas. Apresentaremos algumas possíveis formas de contornar os problemas das variáveis mencionadas neste parágrafo.</p>
+<pre class="r"><code>#H1: p_Q é igual a p_S? - Teste bilateral
+prop.test(x=c(table(df$survived,df$embarked)[2,3],table(df$survived,df$embarked)[2,4]),n=c(table(df$embarked)[3],table(df$embarked)[4]), alternative = &quot;two.sided&quot;)</code></pre>
+<pre><code>## 
+##  2-sample test for equality of proportions with continuity correction
+## 
+## data:  c(table(df$survived, df$embarked)[2, 3], table(df$survived, df$embarked)[2, 4]) out of c(table(df$embarked)[3], table(df$embarked)[4])
+## X-squared = 0.20448, df = 1, p-value = 0.6511
+## alternative hypothesis: two.sided
+## 95 percent confidence interval:
+##  -0.06954019  0.11977946
+## sample estimates:
+##    prop 1    prop 2 
+## 0.3577236 0.3326039</code></pre>
+<p>Portanto, Não rejeitamos H0 ao nível de significância de 5%, ou seja, não descartamos a hipótese de que as proporções dos Portos Q e S são iguais. Como desencargo de consciência, vamos testar se a proporção de sobreviventes no porto C é maior que a de Q.</p>
+<pre class="r"><code>#H1: p_C é superior a p_Q? - Teste unilateral
+prop.test(x=c(table(df$survived,df$embarked)[2,2],table(df$survived,df$embarked)[2,3]),n=c(table(df$embarked)[2],table(df$embarked)[3]), alternative = &quot;greater&quot;)</code></pre>
+<pre><code>## 
+##  2-sample test for equality of proportions with continuity correction
+## 
+## data:  c(table(df$survived, df$embarked)[2, 2], table(df$survived, df$embarked)[2, 3]) out of c(table(df$embarked)[2], table(df$embarked)[3])
+## X-squared = 12.452, df = 1, p-value = 0.0002088
+## alternative hypothesis: greater
+## 95 percent confidence interval:
+##  0.1051509 1.0000000
+## sample estimates:
+##    prop 1    prop 2 
+## 0.5555556 0.3577236</code></pre>
+<pre><code>2.3 **Idade - age**</code></pre>
+<p>Através da idade, percebemos que as <strong>crianças e jovens</strong> tiveram uma proporção <strong>maior</strong> de sobreviventes. Além disso, dividimos os passageiros em três grupos: <strong>“1.Crianças e jovens</strong>; <strong>2.Adultos</strong> e <strong>3.Sem idade informada</strong>. Para essa nova variável (faixa_etaria) considere os seguintes testes:</p>
+<pre class="r"><code>#H1: p_Crianças é superior a p_Adultos? - Teste unilateral
+prop.test(x=c(table(df$survived,df$faixa_etaria)[2,1],table(df$survived,df$faixa_etaria)[2,2]),n=c(table(df$faixa_etaria)[1],table(df$faixa_etaria)[2]), alternative = &quot;greater&quot;)</code></pre>
+<pre><code>## 
+##  2-sample test for equality of proportions with continuity correction
+## 
+## data:  c(table(df$survived, df$faixa_etaria)[2, 1], table(df$survived, df$faixa_etaria)[2, 2]) out of c(table(df$faixa_etaria)[1], table(df$faixa_etaria)[2])
+## X-squared = 13.923, df = 1, p-value = 9.524e-05
+## alternative hypothesis: greater
+## 95 percent confidence interval:
+##  0.1010048 1.0000000
+## sample estimates:
+##    prop 1    prop 2 
+## 0.5739130 0.3877551</code></pre>
+<p>Portanto, rejeitamos H0 ao nível de significância de 5%, ou seja, a proporção de sobreviventes das crianças é dierente (e maior) do que a dos adultos com idade informada. Para testar se proporções de sobreviventes com idade informada e sem são iguais, verifique o seguinte teste, com o qual concluímos que podemos rejeitar H0:</p>
+<pre class="r"><code>#H1: p_Adultos_idade é superior a p_Adultos_sem_idade? - Teste unilateral
+prop.test(x=c(table(df$survived,df$faixa_etaria)[2,2],table(df$survived,df$faixa_etaria)[2,3]),n=c(table(df$faixa_etaria)[2],table(df$faixa_etaria)[3]), alternative = &quot;greater&quot;)</code></pre>
+<pre><code>## 
+##  2-sample test for equality of proportions with continuity correction
+## 
+## data:  c(table(df$survived, df$faixa_etaria)[2, 2], table(df$survived, df$faixa_etaria)[2, 3]) out of c(table(df$faixa_etaria)[2], table(df$faixa_etaria)[3])
+## X-squared = 10.291, df = 1, p-value = 0.0006685
+## alternative hypothesis: greater
+## 95 percent confidence interval:
+##  0.05528386 1.00000000
+## sample estimates:
+##    prop 1    prop 2 
+## 0.3877551 0.2775665</code></pre>
+<p>Os outros testes podem ser feitos de forma semelhante com que apresentamos aqui. Então, para não ficar repetitivo, deixemos a cargo do leitor. Contudo, vale dizer, quando fizermos os modelos de previsão para a variável resposta, os algoritmos apresentarão os resultados dos testes efetuados.</p>
 </div>
 <div id="modelagem." class="section level2">
 <h2>Modelagem.</h2>
+<p>Como vimos, a variável resposta é dicotômica e os modelos mais adequados para sua previsão são os de classificação. Mais precisamente, os modelos supervisionados, pois temos acesso ao resultado da variável nos elementos da amostra.</p>
+<p>Iremos apresentar 3 modelos: <strong>Regressão Logística</strong>, <strong>Árvore de Decisão (Simples)</strong> e o <strong>KNN</strong>. O melhor modelo será o que apresentar a maior acurácia, que mede o número total de acertos dividido pelo número total de previsões. Vale dizer, ainda, que há maneiras de refinar os modelos, como a escolha dos melhores hiperparâmetros, a construção de novas variáveis (feature engineering), junções de modelos, etc…</p>
+<p>Para medir a acurácia, precisamos dividir a amostra em dois grupos: uma para “treinar” os modelos (train) e outra para validar os resultados porque, do contrário, o modelo pode “decorar” as respostas, o que é chamado de <strong>overfitting</strong>. Geralmente, é utilizado 70% da amostra para treinar os modelos e os outros 30% são destinado a validação.</p>
+<pre><code>1.Pré-processamento</code></pre>
+<p>Antes de aplicarmos os modelos, precisamos fazer alguns pré-processamentos, como criar labels para as variáveis categóricas, tratar os valores faltantes e dividir a amostra em treino e teste (já mencionado).</p>
+<p><strong>age, fare, embarked, faixa_etária: factor,</strong></p>
+<p>Para fazer essa divisão, poderíamos usar um pacote (por exemplo, “caTools”). Porém, podemos simplesmente gerar números aleatórios, conforme se verifica abaixo:</p>
+<pre class="r"><code>set.seed(17) #Para manter a mesma sequência pseudo-aleatória
+sample&lt;-sort(sample(nrow(df),nrow(df)*0.7))
+train&lt;-df[sample,]
+val&lt;-df[-sample,]</code></pre>
 </div>
 <div id="conclusões." class="section level2">
 <h2>Conclusões.</h2>
