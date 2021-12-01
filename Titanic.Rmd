@@ -418,14 +418,14 @@ Obtemos, portanto o intervalo de confiança (0.4881 ; 0.5848). Como não contem 
 Também percebemos que as pessoas que viajaram na primeira classe tiveram uma proporção **maior** de sobrevivência (de **61,92%** contra **25,53%** dos que viajaram na terceira classe). Podemos fazer o teste: H0: p1=p2=p3 vs H1: há alguma diferença entre as proporções. Porém, é mais interessante fazer dois testes: primeiro verificar se p1=p2 e depois verificar se p2=p3.
 
 ```{r}
-#p_1 é maior que p_2? 
+#H1: p_1 é maior que p_2? 
 prop.test(x=c(table(df$survived,df$pclass)[2,1],table(df$survived,df$pclass)[2,2]),n=c(table(df$pclass)[1],table(df$pclass)[2]), alternative = "greater")
 ```
 
 Portanto, ao nível de significância de 5%, rejeita-se H0, ou seja, rejeitamos que as proporções de sobreviventes nas classes 1 e 2 sejam iguais.
 
 ```{r}
-#p_2 é maior que p_3? 
+#H1: p_2 é maior que p_3? 
 prop.test(x=c(table(df$survived,df$pclass)[2,2],table(df$survived,df$pclass)[2,3]),n=c(table(df$pclass)[2],table(df$pclass)[3]), alternative = "greater")
 ```
 
@@ -435,9 +435,63 @@ Portanto, ao nível de significância de 5%, rejeita-se H0, ou seja, rejeitamos 
 
 Pessoas que embarcaram no porto "C" (Cherbourg) também possuíram uma proporção **maior** de sobrevivência (**55,56%** contra **33,56%** nos outros portos). Vale dizer, o tamanho expressivo da amostra facilita a rejeição de H0 (observe os valores-p dos outros testes, quase todos foram praticamente zero). Aqui, porém, pode ser que não rejeitemos que as proporções dos outros portos sejam iguais.
 
-Através da idade, percebemos que as **crianças e jovens** tiveram uma proporção **maior** de sobrevivência. Quanto à **fare**, vemos que os passageiros que pagaram mais caro nas passagens também tiveram uma proporção maior de sobrevivência.
+```{r}
+#H1: p_Q é igual a p_S? - Teste bilateral
+prop.test(x=c(table(df$survived,df$embarked)[2,3],table(df$survived,df$embarked)[2,4]),n=c(table(df$embarked)[3],table(df$embarked)[4]), alternative = "two.sided")
+```
 
-Em contrapartida, as variáveis sibsp e parch **não parecem** contribuir para entendermos melhor a variável resposta porque a maioria de seus valores é 0. Além disso, a variável idade apresenta muitos valores faltantes. Precisamos verificar, ainda, se as variáveis associadas. Apresentaremos algumas possíveis formas de contornar os problemas das variáveis mencionadas neste parágrafo.  
+Portanto, Não rejeitamos H0 ao nível de significância de 5%, ou seja, não descartamos a hipótese de que as proporções dos Portos Q e S são iguais. Como desencargo de consciência, vamos testar se a proporção de sobreviventes no porto C é maior que a de Q.
 
+```{r}
+#H1: p_C é superior a p_Q? - Teste unilateral
+prop.test(x=c(table(df$survived,df$embarked)[2,2],table(df$survived,df$embarked)[2,3]),n=c(table(df$embarked)[2],table(df$embarked)[3]), alternative = "greater")
+
+```
+
+    2.3 **Idade - age**
+
+Através da idade, percebemos que as **crianças e jovens** tiveram uma proporção **maior** de sobreviventes. Além disso, dividimos os passageiros em três grupos: **"1.Crianças e jovens**; **2.Adultos** e **3.Sem idade informada**. Para essa nova variável (faixa_etaria) considere os seguintes testes:
+
+```{r}
+#H1: p_Crianças é superior a p_Adultos? - Teste unilateral
+prop.test(x=c(table(df$survived,df$faixa_etaria)[2,1],table(df$survived,df$faixa_etaria)[2,2]),n=c(table(df$faixa_etaria)[1],table(df$faixa_etaria)[2]), alternative = "greater")
+
+```
+
+Portanto, rejeitamos H0 ao nível de significância de 5%, ou seja, a proporção de sobreviventes das crianças é dierente (e maior) do que a dos adultos com idade informada. Para testar se proporções de sobreviventes com idade informada e sem são iguais, verifique o seguinte teste, com o qual concluímos que podemos rejeitar H0:
+
+```{r}
+#H1: p_Adultos_idade é superior a p_Adultos_sem_idade? - Teste unilateral
+prop.test(x=c(table(df$survived,df$faixa_etaria)[2,2],table(df$survived,df$faixa_etaria)[2,3]),n=c(table(df$faixa_etaria)[2],table(df$faixa_etaria)[3]), alternative = "greater")
+
+```
+
+Os outros testes podem ser feitos de forma semelhante com que apresentamos aqui. Então, para não ficar repetitivo, deixemos a cargo do leitor. Contudo, vale dizer, quando fizermos os modelos de previsão para a variável resposta, os algoritmos apresentarão os resultados dos testes efetuados.
+    
 ## Modelagem.
+
+Como vimos, a variável resposta é dicotômica e os modelos mais adequados para sua previsão são os de classificação. Mais precisamente, os modelos supervisionados, pois temos acesso ao resultado da variável nos elementos da amostra.
+
+Iremos apresentar 3 modelos: **Regressão Logística**, **Árvore de Decisão (Simples)** e o **KNN**. O melhor modelo será o que apresentar a maior acurácia, que mede o número total de acertos dividido pelo número total de previsões.  Vale dizer, ainda, que há maneiras de refinar os modelos, como a escolha dos melhores hiperparâmetros, a construção de novas variáveis (feature engineering), junções de modelos, etc...
+
+Para medir a acurácia, precisamos dividir a amostra em dois grupos: uma para "treinar" os modelos (train) e outra para validar os resultados porque, do contrário, o modelo pode "decorar" as respostas, o que é chamado de **overfitting**. Geralmente, é utilizado 70% da amostra para treinar os modelos e os outros 30% são destinado a validação.
+
+    1.Pré-processamento
+
+Antes de aplicarmos os modelos, precisamos fazer alguns pré-processamentos, como criar labels para as variáveis categóricas, tratar os valores faltantes e dividir a amostra em treino e teste (já mencionado).
+
+**age, fare, embarked, faixa_etária: factor,**
+
+Para fazer essa divisão, poderíamos usar um pacote (por exemplo, "caTools"). Porém, podemos simplesmente gerar números aleatórios, conforme se verifica abaixo:
+
+```{r}
+set.seed(17) #Para manter a mesma sequência pseudo-aleatória
+sample<-sort(sample(nrow(df),nrow(df)*0.7))
+train<-df[sample,]
+val<-df[-sample,]
+```
+
+
+
+
 ## Conclusões.
