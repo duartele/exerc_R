@@ -598,13 +598,141 @@ prop.test(x=c(table(df$survived,df$faixa_etaria)[2,2],table(df$survived,df$faixa
 <p>Iremos apresentar 3 modelos: <strong>Regressão Logística</strong>, <strong>Árvore de Decisão (Simples)</strong> e o <strong>KNN</strong>. O melhor modelo será o que apresentar a maior acurácia, que mede o número total de acertos dividido pelo número total de previsões. Vale dizer, ainda, que há maneiras de refinar os modelos, como a escolha dos melhores hiperparâmetros, a construção de novas variáveis (feature engineering), junções de modelos, etc…</p>
 <p>Para medir a acurácia, precisamos dividir a amostra em dois grupos: uma para “treinar” os modelos (train) e outra para validar os resultados porque, do contrário, o modelo pode “decorar” as respostas, o que é chamado de <strong>overfitting</strong>. Geralmente, é utilizado 70% da amostra para treinar os modelos e os outros 30% são destinado a validação.</p>
 <pre><code>1.Pré-processamento</code></pre>
-<p>Antes de aplicarmos os modelos, precisamos fazer alguns pré-processamentos, como criar labels para as variáveis categóricas, tratar os valores faltantes e dividir a amostra em treino e teste (já mencionado).</p>
-<p><strong>age, fare, embarked, faixa_etária: factor,</strong></p>
-<p>Para fazer essa divisão, poderíamos usar um pacote (por exemplo, “caTools”). Porém, podemos simplesmente gerar números aleatórios, conforme se verifica abaixo:</p>
+<p>Antes de construirmos os modelos, precisamos fazer alguns pré-processamentos, como criar labels para as variáveis categóricas, tratar os valores faltantes e dividir a amostra em treino e teste (já mencionado). A vantagem de fazer no R é que não precisamos construir as variáveis dummies, pois já é feito automaticamente.</p>
+<pre class="r"><code>#Categorizando as variáveis faixa_etária e sozinho
+df$faixa_etaria&lt;-factor(df$faixa_etaria)
+df$sozinho&lt;-factor(df$sozinho)
+
+#Tratando os valores faltantes
+#Para idade, vou usar a variável faixa_etaria, mas em todo o caso vou deixar a idade sem valores valtantes
+df$age[is.na(df$age)]&lt;-mean(df$age,na.rm = TRUE)
+df$fare[is.na(df$fare)]&lt;-mean(df$fare,na.rm = TRUE) #só tinha uma obs faltante
+df$embarked[df$embarked==&quot;&quot;]&lt;-&quot;S&quot; #Só tem 2 obs faltantes - coloquei na mais frequente
+df$embarked&lt;-factor(df$embarked) #Quando importei, ficou com 4 fatores: C,Q,S e &quot;&quot;, por isso eu refactorizei</code></pre>
+<p>Para fazer a divisão em treino e teste, poderíamos usar um pacote (por exemplo, “caTools”). Porém, em vez de instalarmos um pacote, podemos simplesmente gerar números aleatórios, conforme se verifica abaixo:</p>
 <pre class="r"><code>set.seed(17) #Para manter a mesma sequência pseudo-aleatória
 sample&lt;-sort(sample(nrow(df),nrow(df)*0.7))
 train&lt;-df[sample,]
 val&lt;-df[-sample,]</code></pre>
+<p>Pronto, o pré-processamento já foi efetuado.</p>
+<pre><code>2.Regressão Logística</code></pre>
+<p>Para construírmos um modelo de regressão logística, podemos utilizar a função glm.</p>
+<pre class="r"><code>train&lt;-subset(train, select=-age)
+m1&lt;-glm(formula = survived ~ ., data = train, family=&quot;binomial&quot;)
+summary(m1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = survived ~ ., family = &quot;binomial&quot;, data = train)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.5546  -0.6273  -0.4656   0.6013   2.2997  
+## 
+## Coefficients:
+##                                    Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)                        4.432261   0.542562   8.169 3.11e-16 ***
+## pclass2                           -0.649209   0.281765  -2.304  0.02122 *  
+## pclass3                           -1.230563   0.268202  -4.588 4.47e-06 ***
+## sexmale                           -2.496843   0.192970 -12.939  &lt; 2e-16 ***
+## sibsp                             -0.830810   0.173234  -4.796 1.62e-06 ***
+## parch                             -0.223232   0.147340  -1.515  0.12975    
+## fare                               0.003387   0.002238   1.513  0.13030    
+## embarkedQ                         -0.262949   0.375237  -0.701  0.48346    
+## embarkedS                         -0.444239   0.228481  -1.944  0.05186 .  
+## faixa_etaria2.Adultos             -1.585090   0.365771  -4.334 1.47e-05 ***
+## faixa_etaria3.Sem idade informada -1.833014   0.416081  -4.405 1.06e-05 ***
+## sozinho1                          -0.826722   0.282984  -2.921  0.00348 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1211.47  on 915  degrees of freedom
+## Residual deviance:  824.09  on 904  degrees of freedom
+## AIC: 848.09
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<p>Com o resultado do primeiro modelo, percebemos que as variáveis fare, embarkedQ e parch foram rejeitadas. Primeiro retiraremos fare e executar o modelo de novo para ver se embarked e sozinho1 continuarão a ser rejeitadas ( outras podem ser rejeitadas agora).</p>
+<pre class="r"><code>train&lt;-subset(train, select=-fare)
+m2&lt;-glm(formula = survived ~ ., data = train, family=&quot;binomial&quot;)
+summary(m2)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = survived ~ ., family = &quot;binomial&quot;, data = train)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.4820  -0.6247  -0.4542   0.6010   2.2399  
+## 
+## Coefficients:
+##                                   Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)                         4.6706     0.5188   9.004  &lt; 2e-16 ***
+## pclass2                            -0.8374     0.2538  -3.299 0.000969 ***
+## pclass3                            -1.4566     0.2242  -6.496 8.22e-11 ***
+## sexmale                            -2.5113     0.1921 -13.070  &lt; 2e-16 ***
+## sibsp                              -0.7870     0.1676  -4.696 2.65e-06 ***
+## parch                              -0.1744     0.1421  -1.227 0.219783    
+## embarkedQ                          -0.2979     0.3745  -0.795 0.426358    
+## embarkedS                          -0.5018     0.2245  -2.235 0.025448 *  
+## faixa_etaria2.Adultos              -1.5372     0.3621  -4.246 2.18e-05 ***
+## faixa_etaria3.Sem idade informada  -1.8064     0.4135  -4.369 1.25e-05 ***
+## sozinho1                           -0.8180     0.2799  -2.922 0.003474 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1211.47  on 915  degrees of freedom
+## Residual deviance:  826.64  on 905  degrees of freedom
+## AIC: 848.64
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<p>Novamente, vemos que as variáveis embarkedQ e parch foram rejeitadas. Considerando que parch já está sendo explicada pelas variáveis sibsp e sozinho, podemos excluí-la do modelo. Quanto à embarkedQ, vimos na parte inferencial que não rejeitamos a hipótese de que a proporção de sobreviventes dos que embarcaram no porto Q não era diferente da dos que embarcaram no porto S. Então, usaremos essa igualdade na obtenção do modelo final.</p>
+<pre class="r"><code>df[&quot;embarked_agg&quot;]&lt;-df$embarked
+df$embarked_agg[df$embarked_agg==&quot;Q&quot;]&lt;-&quot;S&quot;
+df$embarked_agg&lt;-factor(df$embarked_agg)
+train&lt;-df[sample,]
+val&lt;-df[-sample,]
+train&lt;-subset(train, select=-c(age,fare,parch,embarked))
+mf&lt;-glm(formula = survived ~ ., data = train, family=&quot;binomial&quot;)
+summary(mf)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = survived ~ ., family = &quot;binomial&quot;, data = train)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.5264  -0.6291  -0.4487   0.5922   2.2128  
+## 
+## Coefficients:
+##                                   Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)                         4.4170     0.4743   9.312  &lt; 2e-16 ***
+## pclass2                            -0.8342     0.2541  -3.283  0.00103 ** 
+## pclass3                            -1.4505     0.2207  -6.573 4.93e-11 ***
+## sexmale                            -2.5076     0.1889 -13.276  &lt; 2e-16 ***
+## sibsp                              -0.7735     0.1654  -4.677 2.91e-06 ***
+## faixa_etaria2.Adultos              -1.4364     0.3515  -4.086 4.39e-05 ***
+## faixa_etaria3.Sem idade informada  -1.6584     0.3950  -4.199 2.68e-05 ***
+## sozinho1                           -0.6640     0.2526  -2.629  0.00856 ** 
+## embarked_aggS                      -0.4943     0.2214  -2.232  0.02560 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1211.47  on 915  degrees of freedom
+## Residual deviance:  828.65  on 907  degrees of freedom
+## AIC: 846.65
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<p>Como nenhuma variável foi rejeitada, veremos agora se os coeficientes estão coerentes com o que seria esperado. Podemos ver, por exemplo, que a medida que piora a classe de embarque, diminui a probabilidade de sobrevivência (coeficientes estão negativos e “punem” cada vez mais). Continuando o raciocínio, vemos que todos os coeficientes estão coerentes.</p>
+<p>Então, apliquemos este modelo na base de validação para obter a matriz de confusão e, consequentemente, a acurácia do modelo.</p>
+<pre class="r"><code>res&lt;-predict(mf,val,type=&quot;response&quot;)
+confmatrix&lt;-table(verd=val$survived,pred=res&gt;0.5)
+acc&lt;-(confmatrix[1,1]+confmatrix[2,2])/sum(confmatrix)</code></pre>
+<p>Percebe-se que dos 236 (199+37) passageiros que não sobreviveram, acertamos 199 e dos 157 (108+49) que sobreviveram, acertamos 108. Logo, acertamos 307 dos 393 passageiros existentes na base de validação, o que dá uma <strong>acurácia</strong> de <strong>78,12%</strong>.</p>
+<pre><code>3.Árvore de Decisão Simples
+4.KNN </code></pre>
 </div>
 <div id="conclusões." class="section level2">
 <h2>Conclusões.</h2>
