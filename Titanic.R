@@ -1,9 +1,10 @@
 set.seed(17)
-setwd("C:/Users/lndox/OneDrive/Documentos/Mestrado Portugal/Computacao/Trabalho")
+setwd("C:/Users/lndox/OneDrive/Documentos/Repositorios/exerc_R")
 df<-read.csv2("titanic.csv",colClasses = c("factor", "factor", "factor", "numeric",
                "integer", "integer", "numeric", "factor",
                "factor"))
 
+df<-subset(df, select=-death)
 
 calc_faixa_etaria<-function(idade=NA){
   if(is.na(idade)){
@@ -32,10 +33,94 @@ sozinho<-function(a){
 df["sozinho"]<-df$sibsp+df$parch
 df["sozinho"]<-sapply(df$sozinho,FUN=sozinho)
 
+df$faixa_etaria<-factor(df$faixa_etaria)
+df$sozinho<-factor(df$sozinho)
+df$age[is.na(df$age)]<-mean(df$age,na.rm = TRUE)
+df$fare[is.na(df$fare)]<-mean(df$fare,na.rm = TRUE)
+df$embarked[df$embarked==""]<-"S" 
+df$embarked<-factor(df$embarked)
+
+library(caret)
+#subset(df, select=-c(survived, pclass )
+df$survived<-as.integer(df$survived)#survived e pclass não podem ser categorizadas assim
+df$pclass<-as.integer(df$pclass)#elas seriam transformadas em numérica de qualquer forma pela função dummyVars
+dummy<-dummyVars(" ~. ", data=df) 
+df<-data.frame(predict(dummy,newdata=df))
+str(df)
+
+sample<-sort(sample(nrow(df),nrow(df)*0.7))
+train<-df[sample,]
+val<-df[-sample,]
+
+#modelo 1
+train<-subset(train, select=-age)
+train<-subset(train, select=-fare)
+#train<-subset(train, select=-parch)
+#train<-subset(train, select=-c(age, sibsp, parch))
+m1<-glm(formula = survived ~ ., data = train, family="binomial")
+summary(m1)
+
+train<-subset(train, select=-c(sozinho))
+m2<-glm(formula = survived ~ ., data = train, family="binomial")
+summary(m2)
+
+df["embarked_agg"]<-df$embarked
+df$embarked_agg[df$embarked_agg=="Q"]<-"S"
+df$embarked_agg<-factor(df$embarked_agg)
+train<-df[sample,]
+val<-df[-sample,]
+train<-subset(train, select=-c(age,fare,parch,embarked))
+mf<-glm(formula = survived ~ ., data = train, family="binomial")
+summary(mf)
+
+train<-subset(train, select=-c(sozinho))
+m2<-glm(formula = survived ~ ., data = train, family="binomial")
+summary(m2)
+
+res<-predict(m2,val,type="response")
+confmatrix<-table(verd=val$survived,pred=res>0.5)
+acc<-(confmatrix[1,1]+confmatrix[2,2])/sum(confmatrix)
+
+predicted.data<-data.frame(prob=regl$fitted.values, survived=df$survived)
+predicted.data<-predicted.data[order(predicted.data$prob,decreasing = FALSE),]
+predicted.data$rank<-1:nrow(predicted.data)
+
+head(predicted.data)
+
+predict.glm(regl, newdata = df, type="response")
+?predict.glm
+summary(regl)
+
+fitted(regl)
+df$survived<-factor(df$survived)
+
+
+#backup
+target<-subset(df, select=survived)
+df<-subset(df, select=-survived)
+library(caret)
+dummy<-dummyVars(" ~. ", data=df)
+df<-data.frame(predict(dummy,newdata=df))
+set.seed(17) #Para manter a mesma sequência pseudo-aleatória
+sample<-sort(sample(nrow(df),nrow(df)*0.7))
+X_train<-df[sample,]
+X_val<-df[-sample,]
+y_train<-target[sample,]
+y_val<-target[-sample,]
+
+
+
+
+
+
+
 summary(df)
+df$embarked[df$embarked==""]<-"S"
+which(is.na(df$age))
+sum(is.na(df$fare))
 
-table(df$survived,df$faixa_etaria)
-
+table(df$survived,df$embarked)
+pie(x=table(df$embarked))
 boxplot(df$age~df$survived)
 
 boxplot(df$fare~df$survived, ylab = "Valor da Tarifa", xlab="Sobrevivência",main="")
