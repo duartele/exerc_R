@@ -478,11 +478,22 @@ Para medir a acurácia, precisamos dividir a amostra em dois grupos: uma para "t
 
     1.Pré-processamento
 
-Antes de aplicarmos os modelos, precisamos fazer alguns pré-processamentos, como criar labels para as variáveis categóricas, tratar os valores faltantes e dividir a amostra em treino e teste (já mencionado).
+Antes de construirmos os modelos, precisamos fazer alguns pré-processamentos, como criar labels para as variáveis categóricas, tratar os valores faltantes e dividir a amostra em treino e teste (já mencionado). A vantagem de fazer no R é que não precisamos construir as variáveis dummies, pois já é feito automaticamente.
 
-**age, fare, embarked, faixa_etária: factor,**
+```{r}
+#Categorizando as variáveis faixa_etária e sozinho
+df$faixa_etaria<-factor(df$faixa_etaria)
+df$sozinho<-factor(df$sozinho)
 
-Para fazer essa divisão, poderíamos usar um pacote (por exemplo, "caTools"). Porém, podemos simplesmente gerar números aleatórios, conforme se verifica abaixo:
+#Tratando os valores faltantes
+#Para idade, vou usar a variável faixa_etaria, mas em todo o caso vou deixar a idade sem valores valtantes
+df$age[is.na(df$age)]<-mean(df$age,na.rm = TRUE)
+df$fare[is.na(df$fare)]<-mean(df$fare,na.rm = TRUE) #só tinha uma obs faltante
+df$embarked[df$embarked==""]<-"S" #Só tem 2 obs faltantes - coloquei na mais frequente
+df$embarked<-factor(df$embarked) #Quando importei, ficou com 4 fatores: C,Q,S e "", por isso eu refactorizei
+```
+
+Para fazer a divisão em treino e teste, poderíamos usar um pacote (por exemplo, "caTools"). Porém, em vez de instalarmos um pacote, podemos simplesmente gerar números aleatórios, conforme se verifica abaixo:
 
 ```{r}
 set.seed(17) #Para manter a mesma sequência pseudo-aleatória
@@ -491,7 +502,53 @@ train<-df[sample,]
 val<-df[-sample,]
 ```
 
+Pronto, o pré-processamento já foi efetuado.
 
+    2.Regressão Logística
 
+Para construírmos um modelo de regressão logística, podemos utilizar a função glm.
+
+```{r}
+train<-subset(train, select=-age)
+m1<-glm(formula = survived ~ ., data = train, family="binomial")
+summary(m1)
+```
+
+Com o resultado do primeiro modelo, percebemos que as variáveis fare, embarkedQ e parch foram rejeitadas. Primeiro retiraremos fare e executar o modelo de novo para ver se embarked e sozinho1 continuarão a ser rejeitadas ( outras podem ser rejeitadas agora).
+
+```{r}
+train<-subset(train, select=-fare)
+m2<-glm(formula = survived ~ ., data = train, family="binomial")
+summary(m2)
+```
+
+Novamente, vemos que as variáveis embarkedQ e parch foram rejeitadas. Considerando que parch já está sendo explicada pelas variáveis sibsp e sozinho, podemos excluí-la do modelo. Quanto à embarkedQ, vimos na parte inferencial que não rejeitamos a hipótese de que a proporção de sobreviventes dos que embarcaram no porto Q não era diferente da dos que embarcaram no porto S. Então, usaremos essa igualdade na obtenção do modelo final.
+
+```{r}
+df["embarked_agg"]<-df$embarked
+df$embarked_agg[df$embarked_agg=="Q"]<-"S"
+df$embarked_agg<-factor(df$embarked_agg)
+train<-df[sample,]
+val<-df[-sample,]
+train<-subset(train, select=-c(age,fare,parch,embarked))
+mf<-glm(formula = survived ~ ., data = train, family="binomial")
+summary(mf)
+```
+
+Como nenhuma variável foi rejeitada (todos os betas são significamente diferentes de zero), veremos agora se os coeficientes estão coerentes com o que seria esperado. Podemos ver, por exemplo, que a medida que piora a classe de embarque, diminui a probabilidade de sobrevivência (coeficientes estão negativos e "punem" cada vez mais). Contudo, há um pequeno conflito na variável **sibsp**, pois com 1 ou 2 irmãos, a proporção de sobreviventes é maior que a de 0, mas o sinal do coeficiente é negativo. Isto acontece porque com 3 ou mais irmãos vai diminuindo a proporção de sobreviventes e quanto ao 0, ele já é punido pela variável **sozinho**. Até dá para refinar essas variáveis utilizando o agrupamento sugerido na análise descritiva, mas não teríamos grande melhoria.
+
+Então, apliquemos este modelo na base de validação para obter a matriz de confusão e, consequentemente, a acurácia do modelo.
+
+```{r}
+res<-predict(mf,val,type="response")
+confmatrix<-table(verd=val$survived,pred=res>0.5)
+acc<-(confmatrix[1,1]+confmatrix[2,2])/sum(confmatrix)
+print(acc)
+```
+
+Percebe-se que dos 236 (199+37) passageiros que não sobreviveram, acertamos 199 e dos 157 (108+49) que sobreviveram, acertamos 108. Logo, acertamos 307 dos 393 passageiros existentes na base de validação, o que dá uma **acurácia** de **78,12%**.
+
+    3.Árvore de Decisão Simples
+    4.KNN 
 
 ## Conclusões.
