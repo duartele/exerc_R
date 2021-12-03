@@ -11,7 +11,7 @@ calc_faixa_etaria<-function(idade=NA){
     faixa_etaria = "3.Sem idade informada"
     return(faixa_etaria)
   }else if(idade<=15){
-    faixa_etaria = "1.Crianças e jovens"
+    faixa_etaria = "1.Crian?as e jovens"
     return(faixa_etaria)
   } else{
     faixa_etaria = "2.Adultos"
@@ -42,8 +42,8 @@ df$embarked<-factor(df$embarked)
 
 library(caret)
 #subset(df, select=-c(survived, pclass )
-df$survived<-as.integer(df$survived)#survived e pclass não podem ser categorizadas assim
-df$pclass<-as.integer(df$pclass)#elas seriam transformadas em numérica de qualquer forma pela função dummyVars
+df$survived<-as.integer(df$survived)#survived e pclass n?o podem ser categorizadas assim
+df$pclass<-as.integer(df$pclass)#elas seriam transformadas em num?rica de qualquer forma pela fun??o dummyVars
 dummy<-dummyVars(" ~. ", data=df) 
 df<-data.frame(predict(dummy,newdata=df))
 str(df)
@@ -77,7 +77,7 @@ train<-subset(train, select=-c(sozinho))
 m2<-glm(formula = survived ~ ., data = train, family="binomial")
 summary(m2)
 
-res<-predict(m2,val,type="response")
+res<-predict(mf,val,type="response")
 confmatrix<-table(verd=val$survived,pred=res>0.5)
 acc<-(confmatrix[1,1]+confmatrix[2,2])/sum(confmatrix)
 
@@ -95,13 +95,14 @@ fitted(regl)
 df$survived<-factor(df$survived)
 
 
-#backup
+#KNN
 target<-subset(df, select=survived)
-df<-subset(df, select=-survived)
+df<-subset(df, select=-c(survived,embarked_agg))
+df$pclass<-as.integer(df$pclass)
 library(caret)
 dummy<-dummyVars(" ~. ", data=df)
 df<-data.frame(predict(dummy,newdata=df))
-set.seed(17) #Para manter a mesma sequência pseudo-aleatória
+set.seed(17) #Para manter a mesma sequ?ncia pseudo-aleat?ria
 sample<-sort(sample(nrow(df),nrow(df)*0.7))
 X_train<-df[sample,]
 X_val<-df[-sample,]
@@ -110,6 +111,10 @@ y_val<-target[-sample,]
 
 
 
+
+
+str(df)
+table(df$pclass)
 
 
 
@@ -123,9 +128,9 @@ table(df$survived,df$embarked)
 pie(x=table(df$embarked))
 boxplot(df$age~df$survived)
 
-boxplot(df$fare~df$survived, ylab = "Valor da Tarifa", xlab="Sobrevivência",main="")
+boxplot(df$fare~df$survived, ylab = "Valor da Tarifa", xlab="Sobreviv?ncia",main="")
 
-barplot(table(df$embarked,df$pclass), xlab="Porto de Embarque por Classe", ylab="Frequência",
+barplot(table(df$embarked,df$pclass), xlab="Porto de Embarque por Classe", ylab="Frequ?ncia",
         legend.text = FALSE, beside=FALSE)
 
 boxplot(df$fare~df$pclass, ylab = "Valor da Tarifa", xlab="Classe",main="")
@@ -171,7 +176,7 @@ hist(df$age,
      breaks=c(min(df$age,na.rm=TRUE),35,60,69,max(df$age,na.rm=TRUE)),
        main="Idade", xlab="Idade",
      
-     freq=TRUE,ylab="frequências",labels = FALSE, col="blue"
+     freq=TRUE,ylab="frequ?ncias",labels = FALSE, col="blue"
      )
 windows()
 
@@ -179,7 +184,7 @@ jpeg(filename = "histograma.jpeg")
 hist(df$age, 
      main="Idade", xlab="Idade",
      
-     freq=TRUE,ylab="frequências",labels = FALSE, col="blue"
+     freq=TRUE,ylab="frequ?ncias",labels = FALSE, col="blue"
      )
 curve(dnorm(x, mean = mean(df$age,na.rm = T), sd = sd(df$age, na.rm =T)), add = T)   
 dev.off()
@@ -188,7 +193,7 @@ dev.off()
 hist(df$age, 
      main="Idade", xlab="Idade",
      
-     freq=FALSE,ylab="frequências",labels = FALSE, col="blue"
+     freq=FALSE,ylab="frequ?ncias",labels = FALSE, col="blue"
 )
 curve(dnorm(x, mean = mean(df$age,na.rm = T), sd = sd(df$age, na.rm =T)), add = T)   
 legend("bottomright",legend = c("fcom","norm"),text.col = 1:2)
@@ -207,7 +212,7 @@ table(vivos)
 table(df$pclass)/length(df$pclass)
 843/(500+809)
 ?barplot
-main="GRÁFICO"
+main="GR?FICO"
 ?barplot
 a<-table(df$survived,df$sex)
 b<-table(df$survived)
@@ -289,3 +294,12 @@ windows()
 tab1<-table(pathscat,status)
 counts<-tab1
 barplot(counts,main="titulo")
+
+normalize<-function(x){
+  return((x-min(x))/(max(x)-min(x)))
+}
+df_norm<-as.data.frame(lapply(df, normalize))
+require(class)
+mi<-knn(train = df, test = df_, cl=target, k=13)
+table(target,m1)
+summary(df_norm)
