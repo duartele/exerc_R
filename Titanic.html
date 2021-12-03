@@ -598,7 +598,7 @@ prop.test(x=c(table(df$survived,df$faixa_etaria)[2,2],table(df$survived,df$faixa
 <p>Iremos apresentar 3 modelos: <strong>Regressão Logística</strong>, <strong>Árvore de Decisão (Simples)</strong> e o <strong>KNN</strong>. O melhor modelo será o que apresentar a maior acurácia, que mede o número total de acertos dividido pelo número total de previsões. Vale dizer, ainda, que há maneiras de refinar os modelos, como a escolha dos melhores hiperparâmetros, a construção de novas variáveis (feature engineering), junções de modelos, etc…</p>
 <p>Para medir a acurácia, precisamos dividir a amostra em dois grupos: uma para “treinar” os modelos (train) e outra para validar os resultados porque, do contrário, o modelo pode “decorar” as respostas, o que é chamado de <strong>overfitting</strong>. Geralmente, é utilizado 70% da amostra para treinar os modelos e os outros 30% são destinado a validação.</p>
 <pre><code>1.Pré-processamento</code></pre>
-<p>Antes de construirmos os modelos, precisamos fazer alguns pré-processamentos, como criar labels para as variáveis categóricas, tratar os valores faltantes e dividir a amostra em treino e teste (já mencionado). A vantagem de fazer no R é que não precisamos construir as variáveis dummies, pois já é feito automaticamente.</p>
+<p>Antes de construirmos os modelos, precisamos fazer alguns pré-processamentos, como criar labels para as variáveis categóricas, tratar os valores faltantes e dividir a amostra em treino e teste (já mencionado). Quando aplicar o KNN, precisamos fazer alguns outros pré-processamentos, mas para não ficar confusas as bases, faremos as devidas alterações na seção do KNN.</p>
 <pre class="r"><code>#Categorizando as variáveis faixa_etária e sozinho
 df$faixa_etaria&lt;-factor(df$faixa_etaria)
 df$sozinho&lt;-factor(df$sozinho)
@@ -725,14 +725,62 @@ summary(mf)</code></pre>
 ## AIC: 846.65
 ## 
 ## Number of Fisher Scoring iterations: 5</code></pre>
-<p>Como nenhuma variável foi rejeitada, veremos agora se os coeficientes estão coerentes com o que seria esperado. Podemos ver, por exemplo, que a medida que piora a classe de embarque, diminui a probabilidade de sobrevivência (coeficientes estão negativos e “punem” cada vez mais). Continuando o raciocínio, vemos que todos os coeficientes estão coerentes.</p>
+<p>Como nenhuma variável foi rejeitada (todos os betas são significamente diferentes de zero), veremos agora se os coeficientes estão coerentes com o que seria esperado. Podemos ver, por exemplo, que a medida que piora a classe de embarque, diminui a probabilidade de sobrevivência (coeficientes estão negativos e “punem” cada vez mais). Contudo, há um pequeno conflito na variável <strong>sibsp</strong>, pois com 1 ou 2 irmãos, a proporção de sobreviventes é maior que a de 0, mas o sinal do coeficiente é negativo. Isto acontece porque com 3 ou mais irmãos vai diminuindo a proporção de sobreviventes e quanto ao 0, ele já é punido pela variável <strong>sozinho</strong>. Até dá para refinar essas variáveis utilizando o agrupamento sugerido na análise descritiva, mas não teríamos melhoria prática.</p>
 <p>Então, apliquemos este modelo na base de validação para obter a matriz de confusão e, consequentemente, a acurácia do modelo.</p>
 <pre class="r"><code>res&lt;-predict(mf,val,type=&quot;response&quot;)
 confmatrix&lt;-table(verd=val$survived,pred=res&gt;0.5)
-acc&lt;-(confmatrix[1,1]+confmatrix[2,2])/sum(confmatrix)</code></pre>
+acc&lt;-(confmatrix[1,1]+confmatrix[2,2])/sum(confmatrix)
+print(acc)</code></pre>
+<pre><code>## [1] 0.7811705</code></pre>
 <p>Percebe-se que dos 236 (199+37) passageiros que não sobreviveram, acertamos 199 e dos 157 (108+49) que sobreviveram, acertamos 108. Logo, acertamos 307 dos 393 passageiros existentes na base de validação, o que dá uma <strong>acurácia</strong> de <strong>78,12%</strong>.</p>
 <pre><code>3.Árvore de Decisão Simples
 4.KNN </code></pre>
+<p>A ideia do KNN é classificar um novo elemento observando os k elementos mais próximos, sendo k um valor que chamamos de hiperparâmetro do modelo. Não existe uma fórmula para se obter k, geralmente usa números ímpares para evitar empates (por exemplo, se k fosse 4 e perto do elementos que queremos prever temos 2 passageiros que sobreviveram e 2 que não sobreviveram, qual seria a predição para esse elemento?). Obteremos esse valor treinando o algoritmo iterativamente e verificando qual apresentou a maior acurácia.</p>
+<p>Outro problema que o knn enfrenta é que a variável resposta precisa ser equilibrada, do contrário, fica difícil para a categoria com pouca representatividade “vencer na votação”. No caso em tela, temos que a proporção de sobreviventes é de 38,20%, temos, então, um leve desbalanceamento.</p>
+<p>Precisamos que todas as variáveis explicativas sejam numéricas. Então, precisaremos fazer alguns outros pré-processamentos (além dos realizados na seção 1).</p>
+<pre class="r"><code>target&lt;-subset(df, select=survived)
+df&lt;-subset(df, select=-c(survived,embarked_agg))
+df$pclass&lt;-as.integer(df$pclass)#Não quero criar dummies nesta variável porque a ordem importa: classe1&gt;classe2&gt;classe3
+library(caret)</code></pre>
+<pre><code>## Warning: package &#39;caret&#39; was built under R version 4.1.2</code></pre>
+<pre><code>## Loading required package: ggplot2</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre class="r"><code>dummy&lt;-dummyVars(&quot; ~. &quot;, data=df)
+df&lt;-data.frame(predict(dummy,newdata=df))</code></pre>
+<p>Também precisamos que as variáveis estejam normalizadas (todas as variáveis terão escalas de zero a um, ou seja, não é padronização!) para que todas as distâncias tenham o mesmo peso. Certamente tem alguma função para fazer isso, mas simplesmente podemos construir uma linha:</p>
+<pre class="r"><code>normalize&lt;-function(x) return((x-min(x))/(max()-min(x)))
+#Aplicando a normalização na base:
+df_norm&lt;-as.data.frame(lapply(df, normalize))</code></pre>
+<pre><code>## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf
+
+## Warning in max(): no non-missing arguments to max; returning -Inf</code></pre>
+<p>Podemos, agora, aplicar o algoritmo KNN.</p>
 </div>
 <div id="conclusões." class="section level2">
 <h2>Conclusões.</h2>
