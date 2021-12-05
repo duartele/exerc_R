@@ -9,7 +9,7 @@ Here I show how create functions (pow, integrate, etc...) and how to use for, wh
 # Titanic:
 
 Instead of working with a text file, I am using RMarkdown. It's easy to use!!!!
-It's almost finished my study about Titanic data set. It's interesting because it's different of Kaggle works.
+It's finished my study about Titanic data set. It's interesting because it's different of Kaggle works.
 
 # Intervalo:
 
