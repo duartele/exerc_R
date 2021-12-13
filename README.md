@@ -18,3 +18,6 @@ It contains information to how build confidence intervals (manually and automati
 # Correla:
 
 Shows Pearson Correlation, Keandall Correlation and Regression Linear Models
+
+#Exerc:
+Linear Regression exercises - in Portuguese
