@@ -12,8 +12,8 @@ predict(ex1.lm,newdata=data.frame(Units=c(4)))
 y<-4.162+15.509*4 #y=66.198
 #e)
 confint(ex1.lm)
-#declive bhat1. IC: (14,4085;16.6090)
-#f)confint intercept bhat0 IC: (-3.1485;11.4718)
+#declive beta1. IC: (14,4085;16.6090)
+#f)confint intercept beta0 IC: (-3.1485;11.4718)
 #g)para alpha=5, testar H0:b0=0
 summary(ex1.lm)
 #A estatística t é 1.24 e o p-valor é 0.239 > alpha.
@@ -44,7 +44,7 @@ IC de 95% para b1: (1.093188;2.450142)
 #g)'
 summary(ex2.lm)
 #vemos que p-valor = 0.81722 > 0.01, então não rejeitamos h0
-#h) Se H0: beta0 = 0 não for rejeitada a alpha=5%, podemos afirmar que
+#h) Se H0: beta1 = 0 não for rejeitada a alpha=5%, podemos afirmar que
 #não existe relação linear significativa entre x e y
 #Como p-value: 0.001111, rejeitamos H0 com significância de 5%, então podemos
 #concluir que há associação entre as variáveis
@@ -56,8 +56,8 @@ qf(.95,1,5) #Falpha,1,5 Como Fcalc>Falpha, rejeita-se H0 a 5%
 'b1hat = 1.7717
 '
 ET = (1.7717-2)/0.2639 #-0.8651004 ~ tn-2
-RC = pt(.975,5) #0.8128304
-#Como abs(-0.8651004)>0.8128304, rejeitamos H0 com alpha a 5%, ou seja, temos evidências
+RC = qt(.975,5) #2.570582
+#Como abs(-0.8651004)<2.570582, não rejeitamos H0 com alpha a 5%, ou seja, temos evidências
 #de que b1 não é 2
 #k) Observando o summary, vemos que não podemos rejeitar a hipótese de que b0=0
 'Então, seria melhor construir uma reta sem b0.
