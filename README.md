@@ -21,3 +21,6 @@ Shows Pearson Correlation, Keandall Correlation and Regression Linear Models
 
 #Exerc:
 Linear Regression exercises - in Portuguese
+
+#ANOVA:
+For Simple Linear Regression 
